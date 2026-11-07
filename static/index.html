@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TRINITY Plasma Nebula AI Interface</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,10 +19,10 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            background-color: #020108;
+            background-color: #000000;
             color: #e2e8ff;
             font-family: 'Rajdhani', sans-serif;
             overflow-x: hidden;
@@ -34,15 +34,15 @@
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
         .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
 
-        /* Realistic Hyper-detailed Sci-Fi Glassmorphism Modules */
+        /* Realistic Glassmorphism Sci-Fi Panels */
         .glass-panel {
-            background: linear-gradient(135deg, rgba(8, 6, 26, 0.85) 0%, rgba(4, 2, 14, 0.92) 100%);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(0, 210, 255, 0.25);
+            background: linear-gradient(135deg, rgba(8, 6, 26, 0.78) 0%, rgba(3, 2, 12, 0.88) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 210, 255, 0.22);
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95),
                         inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                        inset 0 0 20px rgba(130, 60, 255, 0.08);
+                        inset 0 0 25px rgba(130, 60, 255, 0.08);
             border-radius: 12px;
             position: relative;
         }
@@ -52,57 +52,56 @@
         }
 
         .glass-panel-interactive:hover {
-            border-color: rgba(0, 230, 255, 0.55);
+            border-color: rgba(0, 230, 255, 0.5);
             box-shadow: 0 20px 48px rgba(0, 0, 0, 0.98),
-                        0 0 25px rgba(0, 210, 255, 0.2),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                        0 0 25px rgba(0, 210, 255, 0.18),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2),
                         inset 0 0 25px rgba(0, 200, 255, 0.12);
         }
 
-        /* Metallic Frame Border Lines */
+        /* Metallic Frame Gradient Borders */
         .glass-panel::before {
             content: '';
             position: absolute;
             inset: 0;
             border-radius: 12px;
             padding: 1px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(0, 210, 255, 0.05) 50%, rgba(140, 0, 255, 0.2));
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(0, 210, 255, 0.08) 50%, rgba(140, 0, 255, 0.25));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             pointer-events: none;
         }
 
-        /* Glowing text & elements */
+        /* Glow utilities */
         .glow-text-cyan {
             text-shadow: 0 0 10px rgba(0, 220, 255, 0.8), 0 0 20px rgba(0, 140, 255, 0.5);
         }
 
-        /* Realistic LED status lights */
         .led-indicator {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 8px currentColor;
+            box-shadow: 0 0 10px currentColor;
         }
 
-        /* Custom Scrollbar for Chat */
-        ::-webkit-scrollbar {
-            width: 5px;
+        /* Custom Scrollbar for Chat Stream */
+        #chatStream::-webkit-scrollbar {
+            width: 4px;
         }
-        ::-webkit-scrollbar-track {
+        #chatStream::-webkit-scrollbar-track {
             background: rgba(10, 6, 30, 0.4);
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 180, 255, 0.4);
+        #chatStream::-webkit-scrollbar-thumb {
+            background: rgba(0, 210, 255, 0.4);
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
+        #chatStream::-webkit-scrollbar-thumb:hover {
             background: rgba(160, 80, 255, 0.8);
         }
 
-        /* Sci-fi HUD corners */
+        /* Sci-fi HUD Metallic Corners */
         .hud-corner {
             position: absolute;
             width: 10px;
@@ -116,7 +115,7 @@
         .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; border-bottom-left-radius: 4px; }
         .hud-corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 4px; }
 
-        /* Scanning grid line animation */
+        /* Scanning Grid & Sweep Effect */
         @keyframes scanline {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(100vh); }
@@ -131,22 +130,28 @@
             z-index: 2;
         }
 
-        /* Grid Background Overlay */
         .bg-grid {
             background-size: 60px 60px;
             background-image: 
                 linear-gradient(to right, rgba(0, 180, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(140, 0, 255, 0.03) 1px, transparent 1px);
         }
+
+        /* Markdown Typography for Chat Messages */
+        .chat-text p { margin-bottom: 0.5rem; }
+        .chat-text p:last-child { margin-bottom: 0; }
+        .chat-text ul { list-style-type: disc; margin-left: 1.25rem; margin-bottom: 0.5rem; }
+        .chat-text ol { list-style-type: decimal; margin-left: 1.25rem; margin-bottom: 0.5rem; }
+        .chat-text code { background: rgba(0,210,255,0.15); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
+        .chat-text pre { background: rgba(0,0,0,0.6); border: 1px solid rgba(0,210,255,0.3); padding: 8px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.5rem; }
     </style>
-<base target="_blank">
 </head>
 <body class="relative">
 
-    <!-- Canvas Layer for Plasma Nebula & Concentric HUD Rings -->
+    <!-- Background Canvas for Space Starfield, Plasma & HUD Core -->
     <canvas id="nebulaCanvas" class="fixed inset-0 w-full h-full z-0"></canvas>
 
-    <!-- Sci-fi Tech Grid Overlay -->
+    <!-- Sci-fi Tech Grid & Scanning Line Overlay -->
     <div class="fixed inset-0 bg-grid z-0 pointer-events-none opacity-40"></div>
     <div class="scanline-effect z-0"></div>
 
@@ -158,10 +163,11 @@
             </div>
             <div>
                 <h1 class="font-orbitron font-extrabold text-base md:text-xl tracking-wider text-cyan-100 glow-text-cyan flex items-center gap-2">
-                    TRINITY <span class="text-[10px] md:text-xs px-2 py-0.5 rounded bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-400/50 text-purple-300 font-mono-tech shadow-[0_0_8px_rgba(160,80,255,0.3)]">v4.9 STARFIELD</span>
+                    TRINITY <span class="text-[10px] md:text-xs px-2 py-0.5 rounded bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-400/50 text-purple-300 font-mono-tech shadow-[0_0_8px_rgba(160,80,255,0.3)]">v5.0 GEMINI CORE</span>
                 </h1>
                 <p class="text-[10px] md:text-xs font-mono-tech text-cyan-400/80 tracking-widest uppercase flex items-center gap-1.5">
-                    <span class="led-indicator text-cyan-400 bg-cyan-400"></span> Núcleo Plasma Espacial
+                    <span id="stateLed" class="led-indicator text-emerald-400 bg-emerald-400"></span>
+                    <span id="hudStatus">NÚCLEO ONLINE (GEMINI 3 FLASH)</span>
                 </p>
             </div>
         </div>
@@ -169,28 +175,28 @@
         <!-- Telemetry Stats Top Center -->
         <div class="hidden lg:flex items-center space-x-6 font-mono-tech text-xs bg-black/40 px-5 py-2 rounded-full border border-cyan-500/20 backdrop-blur-md">
             <div class="flex items-center space-x-2">
-                <span class="led-indicator text-emerald-400 bg-emerald-400 animate-pulse"></span>
+                <span class="led-indicator text-cyan-400 bg-cyan-400 animate-pulse"></span>
                 <span class="text-indigo-300/70">ESTADO:</span>
-                <span id="hudStatus" class="text-cyan-300 font-bold tracking-wider">ÓPTIMO</span>
+                <span id="sysStatusText" class="text-cyan-300 font-bold tracking-wider">ÓPTIMO</span>
             </div>
             <div>
                 <span class="text-indigo-300/70">FLUJO:</span>
-                <span id="statFlowRate" class="text-purple-300 font-bold">98.4 TV/s</span>
+                <span id="statFlowRate" class="text-purple-300 font-bold">142.8 TV/s</span>
             </div>
             <div>
                 <span class="text-indigo-300/70">TEMP:</span>
-                <span id="statTemp" class="text-cyan-300 font-bold">1,120 K</span>
+                <span id="statTemp" class="text-cyan-300 font-bold">1,240 K</span>
             </div>
             <div>
                 <span class="text-indigo-300/70">FREQ:</span>
-                <span id="statFreq" class="text-fuchsia-300 font-bold">1420 MHz</span>
+                <span id="statFreq" class="text-fuchsia-300 font-bold">2.8 GHz</span>
             </div>
         </div>
 
         <!-- System Controls Top Right -->
         <div class="flex items-center space-x-2">
-            <button id="btnPulseCore" class="px-2.5 py-1.5 rounded bg-indigo-600/30 hover:bg-indigo-600/50 border border-cyan-500/50 text-cyan-200 text-[11px] md:text-xs font-orbitron transition-all flex items-center gap-1.5 shadow-lg">
-                <i class="fa-solid fa-bolt text-cyan-400"></i> <span class="hidden sm:inline">SOBRECARGA</span>
+            <button id="btnPulseCore" class="px-2.5 py-1.5 rounded bg-indigo-600/30 hover:bg-indigo-600/50 border border-cyan-500/50 text-cyan-200 text-[11px] md:text-xs font-orbitron transition-all flex items-center gap-1.5 shadow-lg hover:shadow-cyan-500/30">
+                <i class="fa-solid fa-bolt text-cyan-400"></i> <span class="hidden sm:inline">SOBRECARGA NÚCLEO</span>
             </button>
             <button id="btnToggleAudio" class="p-2 rounded bg-indigo-950/60 hover:bg-purple-800/40 border border-purple-500/30 text-purple-300 text-xs md:text-sm transition-all" title="Audio/Mic Reactivity">
                 <i id="micIcon" class="fa-solid fa-microphone-slash"></i>
@@ -198,8 +204,8 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-[280px_1fr_340px] xl:grid-cols-[320px_1fr_380px] p-3 md:p-6 gap-4 pointer-events-none">
+    <!-- MAIN CONTENT LAYOUT -->
+    <main class="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-[280px_1fr_360px] xl:grid-cols-[320px_1fr_400px] p-3 md:p-6 gap-4 pointer-events-none">
         
         <!-- LEFT HUD PANEL: Telemetry & Status -->
         <aside class="flex flex-col gap-4 pointer-events-auto">
@@ -220,30 +226,30 @@
                     <div>
                         <div class="flex justify-between text-indigo-200 mb-1">
                             <span>ESTABILIDAD CAMPO</span>
-                            <span id="valStability">96%</span>
+                            <span id="valStability">98%</span>
                         </div>
                         <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-cyan-500/30 overflow-hidden">
-                            <div id="barStability" class="bg-gradient-to-r from-blue-600 to-cyan-400 h-full transition-all duration-500" style="width: 96%"></div>
+                            <div id="barStability" class="bg-gradient-to-r from-blue-600 to-cyan-400 h-full transition-all duration-500" style="width: 98%"></div>
                         </div>
                     </div>
 
                     <div>
                         <div class="flex justify-between text-indigo-200 mb-1">
                             <span>DENSIDAD PLASMA</span>
-                            <span id="valPlasma">78%</span>
+                            <span id="valPlasma">84%</span>
                         </div>
                         <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-purple-500/30 overflow-hidden">
-                            <div id="barPlasma" class="bg-gradient-to-r from-purple-700 via-indigo-500 to-cyan-400 h-full transition-all duration-500" style="width: 78%"></div>
+                            <div id="barPlasma" class="bg-gradient-to-r from-purple-700 via-indigo-500 to-cyan-400 h-full transition-all duration-500" style="width: 84%"></div>
                         </div>
                     </div>
 
                     <div>
                         <div class="flex justify-between text-indigo-200 mb-1">
-                            <span>VELOCIDAD PROCESO</span>
-                            <span id="valProcess">4.2 GHZ</span>
+                            <span>VELOCIDAD DE PROCESO</span>
+                            <span id="valProcess">5.6 GHZ</span>
                         </div>
                         <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-cyan-500/30 overflow-hidden">
-                            <div id="barProcess" class="bg-gradient-to-r from-indigo-600 to-fuchsia-400 h-full transition-all duration-500" style="width: 85%"></div>
+                            <div id="barProcess" class="bg-gradient-to-r from-indigo-600 to-fuchsia-400 h-full transition-all duration-500" style="width: 92%"></div>
                         </div>
                     </div>
                 </div>
@@ -285,16 +291,16 @@
             </div>
         </aside>
 
-        <!-- CENTER AREA -->
-        <div class="hidden lg:flex flex-col justify-end items-center pointer-events-none relative">
-            <div class="absolute top-2 text-center pointer-events-none">
-                <div class="font-orbitron text-[10px] tracking-widest text-cyan-400/80 uppercase">MODO INTERACTIVO TRINITY</div>
-                <div class="font-mono-tech text-[9px] text-purple-300/60">Mueve el cursor para perturbar el plasma azul</div>
+        <!-- CENTER AREA (Interactive HUD Focal Point Label) -->
+        <div class="hidden lg:flex flex-col justify-end items-center pointer-events-none relative pb-6">
+            <div class="text-center pointer-events-none bg-black/40 px-4 py-1.5 rounded-full border border-cyan-500/20 backdrop-blur-md shadow-lg">
+                <div class="font-orbitron text-[11px] tracking-widest text-cyan-300/90 uppercase">NÚCLEO DE PLASMA TRINITY</div>
+                <div class="font-mono-tech text-[9px] text-purple-300/70">Mueve el cursor para perturbar el campo gravitacional</div>
             </div>
         </div>
 
-        <!-- RIGHT HUD PANEL: AI Interactive Chat Console -->
-        <aside class="flex flex-col h-[420px] lg:h-auto pointer-events-auto">
+        <!-- RIGHT HUD PANEL: Interactive Gemini AI Console -->
+        <aside class="flex flex-col h-[480px] lg:h-auto pointer-events-auto">
             <div class="glass-panel glass-panel-interactive rounded-xl flex-1 flex flex-col relative overflow-hidden">
                 <div class="hud-corner hud-corner-tl"></div>
                 <div class="hud-corner hud-corner-tr"></div>
@@ -304,44 +310,44 @@
                 <!-- Chat Header -->
                 <div class="p-3.5 border-b border-indigo-500/20 flex items-center justify-between bg-indigo-950/40">
                     <div class="flex items-center space-x-2.5">
-                        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d2ff]"></div>
+                        <div id="chatLed" class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d2ff]"></div>
                         <h2 class="font-orbitron text-xs md:text-sm font-bold text-cyan-100 tracking-wider">CONSOLA TRINITY AI</h2>
                     </div>
-                    <span class="font-mono-tech text-[10px] px-2 py-0.5 rounded border border-purple-500/40 text-purple-300 bg-purple-950/40">ONLINE</span>
+                    <span id="aiModelBadge" class="font-mono-tech text-[10px] px-2 py-0.5 rounded border border-purple-500/40 text-purple-300 bg-purple-950/40">GEMINI 3 FLASH</span>
                 </div>
 
                 <!-- Chat Stream -->
                 <div id="chatStream" class="flex-1 p-3.5 overflow-y-auto space-y-3 font-sans text-xs md:text-sm">
-                    <!-- AI Welcome Message -->
+                    <!-- Initial Welcome Message -->
                     <div class="flex items-start gap-2.5">
                         <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron shadow-[0_0_8px_rgba(0,200,255,0.3)]">
                             TR
                         </div>
                         <div class="p-2.5 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
-                            <p class="font-mono-tech text-[9px] text-cyan-400 mb-1">[TRINITY AI - INICIALIZADO]</p>
-                            Saludos, Comandante. El núcleo de plasma de TRINITY está sincronizado y estabilizado. ¿Qué parámetros o consultas deseas procesar hoy?
+                            <p class="font-mono-tech text-[9px] text-cyan-400 mb-1">[TRINITY AI - NÚCLEO OPERATIVO]</p>
+                            Saludos, Comandante. El núcleo de plasma de TRINITY está sincronizado con la red neuronal Gemini. ¿En qué puedo asistirte hoy?
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Action Chips -->
+                <!-- Quick Action Suggestion Chips -->
                 <div class="px-3 py-1.5 border-t border-indigo-500/10 flex gap-1.5 overflow-x-auto font-mono-tech text-[10px]">
                     <button class="chip-btn px-2 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
-                        ⚡ Calibrar TRINITY
+                        💡 Proyectos innovadores
                     </button>
                     <button class="chip-btn px-2 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
-                        🌌 Plasma Azul
+                        🌌 Explicar energía plasma
                     </button>
                     <button class="chip-btn px-2 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
-                        🛡️ Campo Cuántico
+                        📊 ¿Cuánto es (145 * 32) / 4?
                     </button>
                 </div>
 
-                <!-- Input Box -->
+                <!-- Chat Input Form -->
                 <form id="chatForm" class="p-2.5 border-t border-indigo-500/20 bg-indigo-950/40 flex items-center gap-2">
-                    <input type="text" id="userInput" placeholder="Escribe un comando a TRINITY..." 
+                    <input type="text" id="userInput" placeholder="Escribe tu consulta o comando a TRINITY..." 
                         class="flex-1 bg-black/50 border border-cyan-500/40 rounded-lg px-3 py-2 text-xs text-cyan-100 placeholder-indigo-400/50 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-mono-tech">
-                    <button type="submit" class="px-3 py-2 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 hover:from-blue-500 hover:to-purple-400 text-white font-orbitron font-bold text-xs transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(0,180,255,0.4)]">
+                    <button type="submit" id="btnSubmit" class="px-3.5 py-2 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 hover:from-blue-500 hover:to-purple-400 text-white font-orbitron font-bold text-xs transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(0,180,255,0.4)]">
                         <span>ENVIAR</span>
                         <i class="fa-solid fa-paper-plane text-[9px]"></i>
                     </button>
@@ -355,16 +361,20 @@
     <footer class="relative z-10 px-4 md:px-6 py-2 border-t border-indigo-500/20 glass-panel flex flex-wrap justify-between items-center text-[10px] md:text-[11px] font-mono-tech text-indigo-300/70 shrink-0">
         <div class="flex items-center space-x-4">
             <span>COORD: <span class="text-cyan-300">RA 05h 35m / DEC -05°23'</span></span>
-            <span class="hidden sm:inline">MAG: <span class="text-purple-400">12.4 TESLA</span></span>
+            <span class="hidden sm:inline">MAG: <span class="text-purple-400">14.8 TESLA</span></span>
+            <span class="hidden md:inline">ENLACE LLM: <span class="text-cyan-400">GEMINI 3 FLASH PREVIEW</span></span>
         </div>
         <div class="flex items-center space-x-3">
-            <span class="text-cyan-400/80">HUD TRINITY PLASMA</span>
+            <span class="text-cyan-400/80">INTERFAZ HUD TRINITY PLASMA</span>
             <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#00e5ff]"></span>
         </div>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC & GEMINI LLM INTEGRATION -->
     <script>
+        /* =========================================================
+           1. CANVAS & PLASMA HUD CORE ENGINE (45% LARGER HUD CORE)
+           ========================================================= */
         const canvas = document.getElementById('nebulaCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -374,12 +384,31 @@
         let coreEnergyPulse = 0; 
         let audioReactivity = 0;
         let statePulse = 0;
-        let trinityState = 'idle';
+        let trinityState = 'idle'; // 'idle', 'thinking', 'speaking'
 
-        function setTrinityState(s){
+        function setTrinityState(s) {
             trinityState = s;
-            const el = document.getElementById('hudStatus');
-            if (el) el.innerText = {idle:'ÓPTIMO', listening:'ESCUCHANDO', thinking:'PROCESANDO', speaking:'RESPONDIENDO'}[s] || 'ÓPTIMO';
+            const elStatus = document.getElementById('hudStatus');
+            const elSys = document.getElementById('sysStatusText');
+            const elLed = document.getElementById('stateLed');
+            const chatLed = document.getElementById('chatLed');
+
+            if (s === 'thinking') {
+                if (elStatus) elStatus.innerText = 'PROCESANDO RESPUESTA...';
+                if (elSys) elSys.innerText = 'PENSANDO';
+                if (elLed) elLed.className = 'led-indicator text-purple-400 bg-purple-400 animate-ping';
+                if (chatLed) chatLed.className = 'w-2.5 h-2.5 rounded-full bg-purple-400 animate-ping shadow-[0_0_12px_#a855f7]';
+            } else if (s === 'speaking') {
+                if (elStatus) elStatus.innerText = 'TRANSMITIENDO DATOS';
+                if (elSys) elSys.innerText = 'RESPONDIENDO';
+                if (elLed) elLed.className = 'led-indicator text-cyan-400 bg-cyan-400 animate-pulse';
+                if (chatLed) chatLed.className = 'w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00d2ff]';
+            } else {
+                if (elStatus) elStatus.innerText = 'NÚCLEO ONLINE (GEMINI 3 FLASH)';
+                if (elSys) elSys.innerText = 'ÓPTIMO';
+                if (elLed) elLed.className = 'led-indicator text-emerald-400 bg-emerald-400';
+                if (chatLed) chatLed.className = 'w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d2ff]';
+            }
         }
 
         function resize() {
@@ -392,19 +421,19 @@
         resize();
 
         window.addEventListener('mousemove', (e) => {
-            targetMouseX = (e.clientX - centerX) * 0.15;
-            targetMouseY = (e.clientY - centerY) * 0.15;
+            targetMouseX = (e.clientX - centerX) * 0.12;
+            targetMouseY = (e.clientY - centerY) * 0.12;
         });
 
         window.addEventListener('touchmove', (e) => {
             if (e.touches.length > 0) {
-                targetMouseX = (e.touches[0].clientX - centerX) * 0.15;
-                targetMouseY = (e.touches[0].clientY - centerY) * 0.15;
+                targetMouseX = (e.touches[0].clientX - centerX) * 0.12;
+                targetMouseY = (e.touches[0].clientY - centerY) * 0.12;
             }
         });
 
-        /* Miniature White Stars */
-        const STAR_COUNT = 180;
+        /* --- Miniature White Stars --- */
+        const STAR_COUNT = 220;
         const stars = [];
 
         class Star {
@@ -415,17 +444,17 @@
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
                 this.size = Math.random() * 1.5 + 0.3;
-                this.alpha = Math.random() * 0.8 + 0.2;
-                this.twinkleSpeed = (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1);
-                this.parallaxFactor = (this.size / 1.8) * 0.4;
+                this.alpha = Math.random() * 0.85 + 0.15;
+                this.twinkleSpeed = (Math.random() * 0.025 + 0.005) * (Math.random() > 0.5 ? 1 : -1);
+                this.parallaxFactor = (this.size / 1.8) * 0.45;
             }
             update() {
                 this.alpha += this.twinkleSpeed;
                 if (this.alpha >= 1) {
                     this.alpha = 1;
                     this.twinkleSpeed = -Math.abs(this.twinkleSpeed);
-                } else if (this.alpha <= 0.15) {
-                    this.alpha = 0.15;
+                } else if (this.alpha <= 0.1) {
+                    this.alpha = 0.1;
                     this.twinkleSpeed = Math.abs(this.twinkleSpeed);
                 }
             }
@@ -436,12 +465,10 @@
                 ctx.save();
                 ctx.fillStyle = '#ffffff';
                 ctx.globalAlpha = this.alpha;
-                
                 if (this.size > 1.2) {
                     ctx.shadowColor = '#ffffff';
                     ctx.shadowBlur = 4;
                 }
-
                 ctx.beginPath();
                 ctx.arc(px, py, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -453,8 +480,8 @@
             stars.push(new Star());
         }
 
-        /* Sparks around core */
-        const SPARK_COUNT = 60;
+        /* --- Dynamic Plasma Sparks Around HUD Core --- */
+        const SPARK_COUNT = 90;
         const sparks = [];
 
         class Spark {
@@ -462,16 +489,16 @@
                 this.init();
             }
             init() {
-                this.dist = Math.random() * 70 + 20;
+                this.dist = Math.random() * 120 + 40;
                 this.angle = Math.random() * Math.PI * 2;
-                this.speed = Math.random() * 1.8 + 0.4;
-                this.size = Math.random() * 2 + 0.4;
-                this.life = Math.random() * 80 + 20;
+                this.speed = Math.random() * 2.2 + 0.6;
+                this.size = Math.random() * 2.4 + 0.5;
+                this.life = Math.random() * 90 + 30;
                 this.maxLife = this.life;
                 this.color = Math.random() > 0.4 ? '#00f0ff' : '#c040ff';
             }
             update() {
-                this.dist += this.speed + coreEnergyPulse * 4;
+                this.dist += this.speed + coreEnergyPulse * 5;
                 this.life--;
                 if (this.life <= 0) {
                     this.init();
@@ -486,7 +513,7 @@
                 ctx.fillStyle = this.color;
                 ctx.globalAlpha = opacity;
                 ctx.shadowColor = '#00e5ff';
-                ctx.shadowBlur = 6;
+                ctx.shadowBlur = 8;
                 ctx.beginPath();
                 ctx.arc(px, py, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -498,7 +525,7 @@
             sparks.push(new Spark());
         }
 
-        /* Concentric HUD Rings */
+        /* --- Concentric HUD Rings Drawing (Enlarged by ~45%) --- */
         let ringRotation1 = 0;
         let ringRotation2 = 0;
         let ringRotation3 = 0;
@@ -506,13 +533,15 @@
         function drawHUD(cx, cy) {
             ctx.save();
             ctx.translate(cx, cy);
+
             const tp = coreEnergyPulse + statePulse;
 
-            const plasmaGlowRadius = 170 + tp * 35 + audioReactivity * 25;
-            const plasmaGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, plasmaGlowRadius);
-            plasmaGrad.addColorStop(0, 'rgba(0, 225, 255, 0.4)');
-            plasmaGrad.addColorStop(0.35, 'rgba(120, 30, 230, 0.2)');
-            plasmaGrad.addColorStop(0.7, 'rgba(20, 5, 60, 0.06)');
+            // Ambient Core Plasma Glow Aura
+            const plasmaGlowRadius = 270 + tp * 60 + audioReactivity * 40;
+            const plasmaGrad = ctx.createRadialGradient(0, 0, 15, 0, 0, plasmaGlowRadius);
+            plasmaGrad.addColorStop(0, 'rgba(0, 230, 255, 0.55)');
+            plasmaGrad.addColorStop(0.3, 'rgba(140, 40, 255, 0.3)');
+            plasmaGrad.addColorStop(0.65, 'rgba(25, 8, 80, 0.12)');
             plasmaGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
             
             ctx.fillStyle = plasmaGrad;
@@ -520,41 +549,61 @@
             ctx.arc(0, 0, plasmaGlowRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            const baseGlow = 14 + tp * 25 + audioReactivity * 15;
+            const baseGlow = 20 + tp * 35 + audioReactivity * 25;
             ctx.shadowBlur = baseGlow;
             ctx.shadowColor = '#00d2ff';
 
-            const scaleFactor = Math.min(width, height) < 768 ? 0.65 : 0.88;
-            ctx.scale(scaleFactor, scaleFactor);
+            // Scale Factor adaptative for smaller mobile screens
+            const responsiveScale = Math.min(width, height) < 768 ? 0.85 : 1.35;
+            ctx.scale(responsiveScale, responsiveScale);
 
-            const pulseMultiplier = 1 + tp * 2 + audioReactivity * 1.5;
+            const pulseMultiplier = 1 + tp * 2.2 + audioReactivity * 1.8;
             ringRotation1 += 0.003 * pulseMultiplier;
             ringRotation2 -= 0.005 * pulseMultiplier;
             ringRotation3 += 0.008 * pulseMultiplier;
 
-            // Core Orb
-            const coreRadius = 38 + Math.sin(Date.now() * 0.004) * 3 + tp * 14 + audioReactivity * 10;
-            const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius * 2.2);
+            // --- CORE PLASMA ORB ---
+            const coreRadius = 55 + Math.sin(Date.now() * 0.004) * 5 + tp * 22 + audioReactivity * 15;
+            const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius * 2.4);
             coreGrad.addColorStop(0, '#ffffff');
-            coreGrad.addColorStop(0.2, '#90f0ff');
-            coreGrad.addColorStop(0.5, '#9933ff');
-            coreGrad.addColorStop(0.8, '#100030');
+            coreGrad.addColorStop(0.22, '#80efff');
+            coreGrad.addColorStop(0.55, '#a035ff');
+            coreGrad.addColorStop(0.82, '#120038');
             coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
 
             ctx.fillStyle = coreGrad;
             ctx.beginPath();
-            ctx.arc(0, 0, coreRadius * 2.2, 0, Math.PI * 2);
+            ctx.arc(0, 0, coreRadius * 2.4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Ring 1
+            // Inner Globe Geometry Ticks & Lines
+            ctx.strokeStyle = 'rgba(210, 245, 255, 0.8)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(0, 0, coreRadius * 0.95, 0, Math.PI * 2);
+            ctx.stroke();
+
+            for (let i = -3; i <= 3; i++) {
+                const dy = i * 12;
+                const rx = Math.sqrt(Math.max(0, (coreRadius*coreRadius) - (dy*dy)));
+                if (rx > 0) {
+                    ctx.beginPath();
+                    ctx.ellipse(0, dy, rx, 5, 0, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(0, 230, 255, 0.45)';
+                    ctx.stroke();
+                }
+            }
+
+            // --- HUD RING 1 (Inner Ticks) ---
             ctx.save();
             ctx.rotate(ringRotation1);
             ctx.strokeStyle = 'rgba(0, 240, 255, 0.85)';
             ctx.lineWidth = 1.5;
-            const r1 = 65;
-            for (let i = 0; i < 50; i++) {
-                const angle = (i / 50) * Math.PI * 2;
-                const len = i % 5 === 0 ? 8 : 3;
+            const r1 = 95;
+            const ticks1 = 60;
+            for (let i = 0; i < ticks1; i++) {
+                const angle = (i / ticks1) * Math.PI * 2;
+                const len = i % 5 === 0 ? 12 : 5;
                 ctx.beginPath();
                 ctx.moveTo(Math.cos(angle) * r1, Math.sin(angle) * r1);
                 ctx.lineTo(Math.cos(angle) * (r1 + len), Math.sin(angle) * (r1 + len));
@@ -562,36 +611,89 @@
             }
             ctx.restore();
 
-            // Ring 2
+            // --- HUD RING 2 (Arcs & Calipers) ---
             ctx.save();
             ctx.rotate(ringRotation2);
-            const r2 = 100;
-            ctx.strokeStyle = 'rgba(195, 80, 255, 0.9)';
-            ctx.lineWidth = 2.5;
+            const r2 = 145;
+            ctx.strokeStyle = 'rgba(195, 80, 255, 0.95)';
+            ctx.lineWidth = 3.5;
+
             ctx.beginPath();
             ctx.arc(0, 0, r2, 0, Math.PI * 0.6);
             ctx.stroke();
             ctx.beginPath();
             ctx.arc(0, 0, r2, Math.PI * 0.8, Math.PI * 1.4);
             ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, r2, Math.PI * 1.6, Math.PI * 1.9);
+            ctx.stroke();
+
+            ctx.setLineDash([5, 10]);
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(0, 0, r2 + 15, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
             ctx.restore();
 
-            // Ring 3
+            // --- HUD RING 3 (Outer Degree Ticks) ---
             ctx.save();
             ctx.rotate(ringRotation3);
-            const r3 = 145;
-            ctx.strokeStyle = 'rgba(0, 200, 255, 0.7)';
-            ctx.lineWidth = 1;
+            const r3 = 210;
+            ctx.strokeStyle = 'rgba(0, 200, 255, 0.75)';
+            ctx.lineWidth = 1.2;
             ctx.beginPath();
             ctx.arc(0, 0, r3, 0, Math.PI * 2);
             ctx.stroke();
 
-            for (let i = 0; i < 90; i++) {
-                const angle = (i / 90) * Math.PI * 2;
-                const len = i % 10 === 0 ? 10 : 5;
+            const ticks3 = 120;
+            for (let i = 0; i < ticks3; i++) {
+                const angle = (i / ticks3) * Math.PI * 2;
+                let len = 5;
+                if (i % 10 === 0) len = 14;
+                else if (i % 5 === 0) len = 9;
+
                 ctx.beginPath();
                 ctx.moveTo(Math.cos(angle) * r3, Math.sin(angle) * r3);
                 ctx.lineTo(Math.cos(angle) * (r3 - len), Math.sin(angle) * (r3 - len));
+                ctx.stroke();
+            }
+
+            ctx.font = '8px "Share Tech Mono"';
+            ctx.fillStyle = 'rgba(210, 235, 255, 0.9)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i < 360; i += 30) {
+                const rad = (i * Math.PI) / 180;
+                const tx = Math.cos(rad) * (r3 + 18);
+                const ty = Math.sin(rad) * (r3 + 18);
+                ctx.fillText(`${i}°`, tx, ty);
+            }
+            ctx.restore();
+
+            // --- HUD RING 4 (Outer Nodes) ---
+            ctx.save();
+            ctx.rotate(ringRotation1 * 0.5);
+            const r4 = 270;
+            ctx.strokeStyle = 'rgba(165, 30, 255, 0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(0, 0, r4, 0, Math.PI * 2);
+            ctx.stroke();
+
+            for (let i = 0; i < 4; i++) {
+                const angle = (i * Math.PI) / 2;
+                const nx = Math.cos(angle) * r4;
+                const ny = Math.sin(angle) * r4;
+
+                ctx.fillStyle = '#00f0ff';
+                ctx.beginPath();
+                ctx.arc(nx, ny, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(nx, ny, 10, 0, Math.PI * 2);
                 ctx.stroke();
             }
             ctx.restore();
@@ -599,7 +701,7 @@
             ctx.restore();
         }
 
-        /* Mini Canvas Gauges */
+        /* --- Mini Gauges & Quantum Waveform Renderers --- */
         function drawMiniGauges() {
             const drawRing = (id, pct, color) => {
                 const c = document.getElementById(id);
@@ -624,17 +726,16 @@
                 cx.textBaseline = 'middle';
                 cx.fillText(`${pct}%`, 27, 27);
             };
-            drawRing('miniGauge1', 87, '#00f0ff');
-            drawRing('miniGauge2', 59, '#a855f7');
+            drawRing('miniGauge1', 94, '#00f0ff');
+            drawRing('miniGauge2', 72, '#a855f7');
         }
 
-        /* Waveform Animation */
         const waveCanvas = document.getElementById('waveformCanvas');
-        const waveCtx = waveCanvas.getContext('2d');
+        const waveCtx = waveCanvas ? waveCanvas.getContext('2d') : null;
         let wavePhase = 0;
 
         function drawWaveform() {
-            if(!waveCanvas) return;
+            if(!waveCanvas || !waveCtx) return;
             waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
             waveCtx.beginPath();
             waveCtx.strokeStyle = '#00f0ff';
@@ -645,14 +746,14 @@
             wavePhase += 0.08;
 
             for (let x = 0; x < w; x++) {
-                const y = h/2 + Math.sin(x * 0.04 + wavePhase) * (8 + audioReactivity * 15) + Math.cos(x * 0.02 - wavePhase * 0.5) * 4;
+                const y = h/2 + Math.sin(x * 0.04 + wavePhase) * (8 + audioReactivity * 18 + (trinityState === 'thinking' ? 12 : 0)) + Math.cos(x * 0.02 - wavePhase * 0.5) * 4;
                 if (x === 0) waveCtx.moveTo(x, y);
                 else waveCtx.lineTo(x, y);
             }
             waveCtx.stroke();
         }
 
-        /* Main Render Loop */
+        /* --- Main Animation Loop --- */
         function animate() {
             mouseX += (targetMouseX - mouseX) * 0.05;
             mouseY += (targetMouseY - mouseY) * 0.05;
@@ -662,13 +763,14 @@
                 if (coreEnergyPulse < 0.001) coreEnergyPulse = 0;
             }
 
-            statePulse += (Math.sin(Date.now() * 0.003) * 0.08 - statePulse) * 0.1;
+            const targetStatePulse = trinityState === 'idle' ? 0 : (trinityState === 'thinking' ? 1.4 : 0.6);
+            statePulse += (targetStatePulse - statePulse) * 0.08;
 
-            // Background Deep Space Black
+            // Black Space Canvas Clear
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, width, height);
 
-            // Update & Draw Stars
+            // Draw Stars
             for (let star of stars) {
                 star.update();
                 star.draw();
@@ -683,7 +785,7 @@
                 spark.draw(cx, cy);
             }
 
-            // Draw HUD
+            // Draw Concentric Plasma HUD Core
             drawHUD(cx, cy);
             drawWaveform();
 
@@ -693,13 +795,14 @@
         drawMiniGauges();
         animate();
 
-        /* Interactive Controls */
+        /* Manual Core Pulse Button */
         document.getElementById('btnPulseCore').addEventListener('click', () => {
-            coreEnergyPulse = 1.8;
+            coreEnergyPulse = 2.2;
             setTrinityState('thinking');
             setTimeout(() => setTrinityState('idle'), 2500);
         });
 
+        /* Audio Microphone Reactivity */
         let audioActive = false;
         document.getElementById('btnToggleAudio').addEventListener('click', () => {
             audioActive = !audioActive;
@@ -708,67 +811,200 @@
             if(audioActive) {
                 icon.className = 'fa-solid fa-microphone text-cyan-400 animate-pulse';
                 label.innerText = 'MIC ACTIVO';
-                audioReactivity = 1.2;
-                setTrinityState('listening');
+                audioReactivity = 1.4;
             } else {
                 icon.className = 'fa-solid fa-microphone-slash';
                 label.innerText = 'SINTETIZADOR';
                 audioReactivity = 0;
+            }
+        });
+
+
+        /* =========================================================
+           2. GEMINI LLM INTEGRATION (REAL INTELLIGENT RESPONSES)
+           ========================================================= */
+        const apiKey = ""; // Canvas runtime environment provides standard Gemini API Key
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        // System Instruction persona for TRINITY AI
+        const systemPrompt = `Eres TRINITY AI, una inteligencia artificial hiper-avanzada integrada en una interfaz espacial futurista de plasma azul y morado.
+Tus respuestas deben ser:
+1. Reales, precisas, inteligentes y contextuales a cualquier pregunta del usuario (por ejemplo: cálculos matemáticos reales, listas de proyectos, explicaciones complejas, programación, o cualquier otro tema).
+2. Mantén un tono elegante, futurista pero amable y servicial ("Saludos Comandante", etc., de manera natural sin resultar robótico o repetitivo).
+3. Responde en español y utiliza formato Markdown claro (listas con viñetas, negritas, bloques de código si aplica).`;
+
+        // Conversation History Array for Gemini API Context
+        let conversationHistory = [];
+
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
+        const chatStream = document.getElementById('chatStream');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // 1. Render User Message
+            appendUserMessage(text);
+            userInput.value = '';
+
+            // 2. Set Visual State to Thinking
+            setTrinityState('thinking');
+            coreEnergyPulse = 1.5;
+
+            // 3. Render Loading Indicator
+            const loadingMsgId = appendLoadingMessage();
+
+            // 4. Update Conversation Context
+            conversationHistory.push({
+                role: "user",
+                parts: [{ text: text }]
+            });
+
+            // Exponential Backoff Fetch Call to Gemini API
+            try {
+                const responseText = await callGeminiAPIWithRetry(conversationHistory);
+                
+                // Add Assistant Response to History
+                conversationHistory.push({
+                    role: "model",
+                    parts: [{ text: responseText }]
+                });
+
+                // Remove Loading indicator & Append Real Response
+                removeMessage(loadingMsgId);
+                appendAIMessage(responseText);
+                setTrinityState('speaking');
+                coreEnergyPulse = 1.2;
+                setTimeout(() => setTrinityState('idle'), 2000);
+
+            } catch (err) {
+                console.error("Gemini API Error:", err);
+                removeMessage(loadingMsgId);
+                appendAIMessage("⚠️ Error en el enlace cuántico neuronal. No se pudo obtener respuesta de Gemini en este momento. Inténtalo de nuevo.");
                 setTrinityState('idle');
             }
         });
 
-        /* Chat System Logic */
-        document.getElementById('chatForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const input = document.getElementById('userInput');
-            const txt = input.value.trim();
-            if(!txt) return;
+        /* --- API Call with Retry Logic --- */
+        async function callGeminiAPIWithRetry(history, retries = 3, delay = 1000) {
+            const payload = {
+                contents: history,
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
 
-            const stream = document.getElementById('chatStream');
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-            // User Message
-            const userDiv = document.createElement('div');
-            userDiv.className = 'flex items-start gap-2.5 justify-end';
-            userDiv.innerHTML = `
-                <div class="p-2.5 rounded-xl bg-cyan-950/50 border border-cyan-500/40 text-cyan-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
-                    ${txt}
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+
+                    const data = await res.json();
+                    const candidate = data.candidates?.[0];
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        return candidate.content.parts[0].text;
+                    } else {
+                        throw new Error("Invalid structure returned from Gemini API");
+                    }
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+                }
+            }
+        }
+
+        /* --- UI Render Helpers for Chat Messages --- */
+        function appendUserMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-2.5 justify-end';
+            div.innerHTML = `
+                <div class="p-2.5 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-cyan-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
+                    ${escapeHTML(text)}
                 </div>
                 <div class="w-6 h-6 rounded-lg bg-cyan-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron">
                     CMD
                 </div>
             `;
-            stream.appendChild(userDiv);
-            input.value = '';
-            stream.scrollTop = stream.scrollHeight;
+            chatStream.appendChild(div);
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
 
-            setTrinityState('thinking');
-            coreEnergyPulse = 1.0;
+        function appendAIMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-2.5';
+            div.innerHTML = `
+                <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron shadow-[0_0_8px_rgba(0,200,255,0.3)]">
+                    TR
+                </div>
+                <div class="p-2.5 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm chat-text">
+                    <p class="font-mono-tech text-[9px] text-cyan-400 mb-1">[TRINITY AI - GEMINI 3 FLASH]</p>
+                    ${parseSimpleMarkdown(text)}
+                </div>
+            `;
+            chatStream.appendChild(div);
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
 
-            // AI Response simulation
-            setTimeout(() => {
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'flex items-start gap-2.5';
-                aiDiv.innerHTML = `
-                    <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron">
-                        TR
-                    </div>
-                    <div class="p-2.5 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
-                        <p class="font-mono-tech text-[9px] text-cyan-400 mb-1">[TRINITY AI - PROCESADO]</p>
-                        Comando "${txt}" ejecutado correctamente en los subprocesos del núcleo de plasma. Parámetros estables.
-                    </div>
-                `;
-                stream.appendChild(aiDiv);
-                stream.scrollTop = stream.scrollHeight;
-                setTrinityState('speaking');
-                setTimeout(() => setTrinityState('idle'), 1500);
-            }, 800);
-        });
+        function appendLoadingMessage() {
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'flex items-start gap-2.5';
+            div.innerHTML = `
+                <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron">
+                    TR
+                </div>
+                <div class="p-2.5 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-300 max-w-[85%] text-xs leading-relaxed shadow-sm flex items-center gap-2 font-mono-tech">
+                    <i class="fa-solid fa-atom animate-spin text-cyan-400"></i> PROCESANDO EN EL NÚCLEO CUÁNTICO...
+                </div>
+            `;
+            chatStream.appendChild(div);
+            chatStream.scrollTop = chatStream.scrollHeight;
+            return id;
+        }
 
-        // Quick action chips
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function parseSimpleMarkdown(md) {
+            let html = md
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                .replace(/^\s*[\-\*]\s+(.*)$/gm, '<li>$1</li>');
+
+            // Wrap contiguous <li> elements into <ul>
+            html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>').replace(/<\/ul>\s*<ul>/g, '');
+            
+            // Paragraph breaks
+            const paragraphs = html.split(/\n\n+/);
+            return paragraphs.map(p => p.startsWith('<pre>') || p.startsWith('<ul>') ? p : `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+        }
+
+        // Quick action chip buttons listener
         document.querySelectorAll('.chip-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.getElementById('userInput').value = btn.innerText.replace(/^[⚡🌌🛡️]\s*/, '');
+                const text = btn.innerText.replace(/^[^\w\s¿?]+/, '').trim();
+                userInput.value = text;
+                chatForm.dispatchEvent(new Event('submit'));
             });
         });
     </script>

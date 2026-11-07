@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, send_file
 # URL del webhook de Make.com (puedes sobreescribirla con la variable de entorno MAKE_WEBHOOK)
 MAKE_WEBHOOK = os.environ.get(
     "MAKE_WEBHOOK",
-    "https://hook.us2.make.com/mn8gnb5ov1ehe1iwygyx1jphavkfxlb9"
+    "https://hook.us2.make.com/jq9blfnv9gjoa4v84810ge3eucpn2az0"
 )
 
 app = Flask(__name__)

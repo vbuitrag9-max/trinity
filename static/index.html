@@ -1,236 +1,1027 @@
-<!DOCTYPE html>
-<html lang="es-419">
+n:wgh<!DOCTYPE html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trinity</title>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family:'Segoe UI', system-ui, sans-serif;
-    background:radial-gradient(ellipse at 50% 0%, #0b1026 0%, #05070f 60%, #020308 100%);
-    color:#e5e9f5; height:100vh; display:flex; flex-direction:column; overflow:hidden;
-  }
-  header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; }
-  .logo { font-size:18px; font-weight:500; letter-spacing:4px; color:#c7d2fe; }
-  .logo span { color:#7c8cff; }
-  .badge { font-size:11px; color:#5a648a; border:1px solid #232c4d; border-radius:999px; padding:3px 10px; }
-  #stage { position:relative; height:260px; display:flex; align-items:center; justify-content:center; flex:none; }
-  #orb { width:240px; height:240px; }
-  #status { position:absolute; bottom:6px; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:#5a648a; transition:color .4s; }
-  #status.listening { color:#67e8f9; } #status.thinking { color:#a78bfa; } #status.speaking { color:#93c5fd; }
-  #chat { flex:1; overflow-y:auto; padding:8px 20px; display:flex; flex-direction:column; gap:12px; scrollbar-width:thin; }
-  .msg { max-width:78%; padding:10px 14px; border-radius:16px; font-size:15px; line-height:1.5; animation:pop .25s ease-out; white-space:pre-wrap; }
-  @keyframes pop { from{opacity:0; transform:translateY(8px);} to{opacity:1;} }
-  .user { align-self:flex-end; background:linear-gradient(135deg,#4f46e5,#7c3aed); border-bottom-right-radius:4px; }
-  .trinity { align-self:flex-start; background:rgba(124,140,255,.08); border:1px solid #232c4d; border-bottom-left-radius:4px; }
-  #composer { display:flex; gap:8px; padding:16px 20px 20px; align-items:center; }
-  #input { flex:1; background:rgba(124,140,255,.06); border:1px solid #232c4d; border-radius:999px; padding:12px 18px; color:#e5e9f5; font-size:15px; outline:none; }
-  #input:focus { border-color:#4f46e5; }
-  .btn { width:46px; height:46px; border-radius:50%; border:1px solid #232c4d; background:rgba(124,140,255,.08); color:#a5b4fc; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s; flex:none; }
-  .btn:hover { border-color:#4f46e5; }
-  .btn.rec { background:#7c3aed; border-color:#7c3aed; color:#fff; animation:pulse 1.2s infinite; }
-  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.5);} 50%{box-shadow:0 0 0 12px rgba(124,58,237,0);} }
-  .btn svg { width:20px; height:20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trinity Plasma Nebula AI Interface</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Sci-Fi Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #020108;
+            color: #e2e8ff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
+
+        /* Realistic Hyper-detailed Sci-Fi Glassmorphism Modules */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(8, 6, 26, 0.85) 0%, rgba(4, 2, 14, 0.92) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 210, 255, 0.25);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                        inset 0 0 20px rgba(130, 60, 255, 0.08);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .glass-panel-interactive {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-panel-interactive:hover {
+            border-color: rgba(0, 230, 255, 0.55);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.98),
+                        0 0 25px rgba(0, 210, 255, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                        inset 0 0 25px rgba(0, 200, 255, 0.12);
+        }
+
+        /* Metallic Frame Border Lines */
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(0, 210, 255, 0.05) 50%, rgba(140, 0, 255, 0.2));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Glowing text & elements */
+        .glow-text-cyan {
+            text-shadow: 0 0 10px rgba(0, 220, 255, 0.8), 0 0 20px rgba(0, 140, 255, 0.5);
+        }
+        .glow-text-purple {
+            text-shadow: 0 0 10px rgba(200, 80, 255, 0.8), 0 0 20px rgba(120, 0, 255, 0.5);
+        }
+        .glow-border {
+            box-shadow: 0 0 15px rgba(0, 180, 255, 0.4);
+        }
+
+        /* Realistic LED status lights */
+        .led-indicator {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* Custom Scrollbar for Chat */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 6, 30, 0.4);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 180, 255, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(160, 80, 255, 0.8);
+        }
+
+        /* Sci-fi HUD corners */
+        .hud-corner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: rgba(0, 230, 255, 0.75);
+            pointer-events: none;
+            z-index: 5;
+        }
+        .hud-corner-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; border-top-left-radius: 4px; }
+        .hud-corner-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; border-top-right-radius: 4px; }
+        .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; border-bottom-left-radius: 4px; }
+        .hud-corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 4px; }
+
+        /* Scanning grid line animation */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        .scanline-effect {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 230, 255, 0.35), transparent);
+            opacity: 0.5;
+            animation: scanline 9s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Grid Background Overlay */
+        .bg-grid {
+            background-size: 60px 60px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 180, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(140, 0, 255, 0.03) 1px, transparent 1px);
+        }
+    </style>
 <base target="_blank">
 </head>
-<body>
-<header>
-  <div class="logo">TRINI<span>TY</span></div>
-  <div class="badge" id="engine">gemini · make.com · render</div>
-</header>
+<body class="relative flex flex-col justify-between overflow-hidden">
 
-<div id="stage">
-  <canvas id="orb"></canvas>
-  <div id="status">en línea</div>
-</div>
+    <!-- Canvas Layer for Plasma Nebula & Concentric HUD Rings -->
+    <canvas id="nebulaCanvas" class="absolute inset-0 w-full h-full z-0"></canvas>
 
-<div id="chat"></div>
+    <!-- Sci-fi Tech Grid Overlay -->
+    <div class="absolute inset-0 bg-grid z-0 pointer-events-none opacity-40"></div>
+    <div class="scanline-effect z-0"></div>
 
-<div id="composer">
-  <button class="btn" id="mic" title="Hablar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-  </button>
-  <input id="input" type="text" placeholder="Escribe o usa el micrófono..." autocomplete="off">
-  <button class="btn" id="send" title="Enviar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-  </button>
-</div>
+    <!-- HEADER / TOP HUD BAR -->
+    <header class="relative z-10 flex items-center justify-between px-6 py-4 border-b border-cyan-500/20 glass-panel">
+        <div class="flex items-center space-x-4">
+            <div class="relative w-10 h-10 flex items-center justify-center rounded-lg bg-indigo-950/80 border border-cyan-400/50 text-cyan-400 font-orbitron font-bold shadow-[0_0_15px_rgba(0,200,255,0.4)]">
+                <i class="fa-solid fa-atom text-xl animate-spin" style="animation-duration: 12s;"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron font-extrabold text-xl tracking-wider text-cyan-100 glow-text-cyan flex items-center gap-2">
+                    TRINITY <span class="text-xs px-2.5 py-0.5 rounded bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-400/50 text-purple-300 font-mono-tech shadow-[0_0_8px_rgba(160,80,255,0.3)]">v4.9 STARFIELD</span>
+                </h1>
+                <p class="text-xs font-mono-tech text-cyan-400/80 tracking-widest uppercase flex items-center gap-2">
+                    <span class="led-indicator text-cyan-400 bg-cyan-400"></span> Núcleo Plasma Espacial
+                </p>
+            </div>
+        </div>
 
-<script>
-// ---------- Orbe plasma ----------
-const canvas = document.getElementById('orb');
-const ctx = canvas.getContext('2d');
-const BLOBS = [
-  {h:200,s:90,l:60,ph:0},{h:225,s:95,l:62,ph:1.3},{h:255,s:90,l:64,ph:2.6},
-  {h:275,s:85,l:60,ph:4},{h:210,s:100,l:70,ph:5.2}
-];
-const STATE_CFG = {
-  idle:      {e:.32, rot:.25},
-  listening: {e:.60, rot:.40, ring:true},
-  thinking:  {e:.95, rot:1.60, jit:true},
-  speaking:  {e:.72, rot:.50, breath:true}
-};
-let curState = 'idle';
+        <!-- Telemetry Stats Top Center -->
+        <div class="hidden md:flex items-center space-x-8 font-mono-tech text-xs bg-black/40 px-5 py-2 rounded-full border border-cyan-500/20 backdrop-blur-md">
+            <div class="flex items-center space-x-2">
+                <span class="led-indicator text-emerald-400 bg-emerald-400 animate-pulse"></span>
+                <span class="text-indigo-300/70">ESTADO:</span>
+                <span id="hudStatus" class="text-cyan-300 font-bold tracking-wider">ÓPTIMO</span>
+            </div>
+            <div>
+                <span class="text-indigo-300/70">FLUJO PLASMA:</span>
+                <span id="statFlowRate" class="text-purple-300 font-bold">98.4 TV/s</span>
+            </div>
+            <div>
+                <span class="text-indigo-300/70">TEMPERATURA:</span>
+                <span id="statTemp" class="text-cyan-300 font-bold">1,120 K</span>
+            </div>
+            <div>
+                <span class="text-indigo-300/70">FRECUENCIA:</span>
+                <span id="statFreq" class="text-fuchsia-300 font-bold">1420 MHz</span>
+            </div>
+        </div>
 
-function fitOrb(){
-  const d = Math.min(2, window.devicePixelRatio || 1);
-  canvas.width = 240 * d; canvas.height = 240 * d;
-  ctx.setTransform(d,0,0,d,0,0);
-}
-fitOrb(); window.addEventListener('resize', fitOrb);
+        <!-- System Controls Top Right -->
+        <div class="flex items-center space-x-3">
+            <button id="btnPulseCore" class="px-3 py-1.5 rounded bg-indigo-600/30 hover:bg-indigo-600/50 border border-cyan-500/50 text-cyan-200 text-xs font-orbitron transition-all flex items-center gap-2 shadow-lg hover:shadow-cyan-500/30">
+                <i class="fa-solid fa-bolt text-cyan-400"></i> SOBRECARGA NÚCLEO
+            </button>
+            <button id="btnToggleAudio" class="p-2 rounded bg-indigo-950/60 hover:bg-purple-800/40 border border-purple-500/30 text-purple-300 text-sm transition-all" title="Audio/Mic Reactivity">
+                <i id="micIcon" class="fa-solid fa-microphone-slash"></i>
+            </button>
+        </div>
+    </header>
 
-function drawOrb(t){
-  const w = 240, h = 240, cx = 120, cy = 120, R = 105;
-  ctx.clearRect(0,0,w,h);
-  const s = STATE_CFG[curState];
-  const e = curState==='speaking' ? s.e + .12*Math.sin(t*5) : s.e;
-  let sc = 1;
-  if (s.breath) sc = 1 + .07*Math.sin(t*4.5);
-  if (s.jit)    sc = 1 + .03*Math.sin(t*13);
-  ctx.save(); ctx.translate(cx,cy); ctx.scale(sc,sc); ctx.translate(-cx,-cy);
+    <!-- MAIN CONTENT AREA -->
+    <main class="relative z-10 flex-1 flex flex-col md:flex-row justify-between p-4 md:p-6 gap-6 pointer-events-none">
+        
+        <!-- LEFT HUD PANEL: Telemetry & Status -->
+        <aside class="w-full md:w-72 flex flex-col gap-4 pointer-events-auto">
+            <!-- System Metrics Card -->
+            <div class="glass-panel glass-panel-interactive rounded-xl p-4 relative">
+                <div class="hud-corner hud-corner-tl"></div>
+                <div class="hud-corner hud-corner-tr"></div>
+                <div class="hud-corner hud-corner-bl"></div>
+                <div class="hud-corner hud-corner-br"></div>
 
-  if (s.ring){
-    for (let i=0;i<3;i++){
-      const p = ((t*.5)+(i/3)) % 1;
-      ctx.beginPath(); ctx.arc(cx,cy,R*(.45+p*.75),0,7);
-      ctx.strokeStyle = 'hsla(225,90%,70%,' + ((1-p)*.4*e+.05) + ')';
-      ctx.lineWidth = 1.5; ctx.stroke();
-    }
-  }
-  ctx.globalCompositeOperation = 'lighter';
-  const n = BLOBS.length;
-  for (let i=0;i<n;i++){
-    const b = BLOBS[i];
-    const ang = t*s.rot*(i%2?1:-1) + i*Math.PI*2/n + b.ph;
-    const orbit = R*.34*(1+.18*Math.sin(t*.9+b.ph*2));
-    const px = cx+Math.cos(ang)*orbit, py = cy+Math.sin(ang)*orbit;
-    const br = R*.42*(1+.22*Math.sin(t*1.4+b.ph*3))*(.55+e*.7);
-    const g = ctx.createRadialGradient(px,py,0,px,py,br);
-    g.addColorStop(0, 'hsla('+b.h+','+b.s+'%,'+b.l+'%,'+(.5*e+.15)+')');
-    g.addColorStop(1, 'hsla(0,0%,0%,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px,py,br,0,7); ctx.fill();
-  }
-  const cr = R*.5*(.7+e*.5);
-  const cg = ctx.createRadialGradient(cx,cy,0,cx,cy,cr);
-  cg.addColorStop(0,   'hsla(210,100%,92%,'+(.85*Math.min(1,e+.4))+')');
-  cg.addColorStop(.55, 'hsla(210,95%,70%,'+(.35*e)+')');
-  cg.addColorStop(1,   'hsla(0,0%,0%,0)');
-  ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx,cy,cr,0,7); ctx.fill();
-  ctx.restore();
-}
-(function loop(now){ drawOrb(now/1000); requestAnimationFrame(loop); })(performance.now());
+                <h3 class="font-orbitron text-xs font-semibold text-cyan-300 tracking-wider uppercase mb-3 flex items-center justify-between border-b border-cyan-500/20 pb-2">
+                    <span><i class="fa-solid fa-chart-line mr-2 text-cyan-400"></i>Telemetría Núcleo</span>
+                    <span class="animate-ping inline-flex h-2 w-2 rounded-full bg-purple-400"></span>
+                </h3>
 
-// ---------- Estados y UI ----------
-const statusEl = document.getElementById('status');
-const chatEl   = document.getElementById('chat');
-const inputEl  = document.getElementById('input');
+                <!-- Bar Gauges -->
+                <div class="space-y-3 font-mono-tech text-xs">
+                    <div>
+                        <div class="flex justify-between text-indigo-200 mb-1">
+                            <span>ESTABILIDAD CAMPO</span>
+                            <span id="valStability">96%</span>
+                        </div>
+                        <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-cyan-500/30 overflow-hidden">
+                            <div id="barStability" class="bg-gradient-to-r from-blue-600 to-cyan-400 h-full transition-all duration-500" style="width: 96%"></div>
+                        </div>
+                    </div>
 
-const STATUS_TXT = {
-  idle:'en línea', listening:'escuchando', thinking:'procesando', speaking:'trinity responde'
-};
-function setState(s){
-  curState = s;
-  statusEl.textContent = STATUS_TXT[s];
-  statusEl.className = s;
-}
+                    <div>
+                        <div class="flex justify-between text-indigo-200 mb-1">
+                            <span>DENSIDAD PLASMA</span>
+                            <span id="valPlasma">78%</span>
+                        </div>
+                        <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-purple-500/30 overflow-hidden">
+                            <div id="barPlasma" class="bg-gradient-to-r from-purple-700 via-indigo-500 to-cyan-400 h-full transition-all duration-500" style="width: 78%"></div>
+                        </div>
+                    </div>
 
-function addMsg(text, who){
-  const d = document.createElement('div');
-  d.className = 'msg ' + who; d.textContent = text;
-  chatEl.appendChild(d); chatEl.scrollTop = chatEl.scrollHeight;
-  return d;
-}
+                    <div>
+                        <div class="flex justify-between text-indigo-200 mb-1">
+                            <span>VELOCIDAD DE PROCESO</span>
+                            <span id="valProcess">4.2 GHZ</span>
+                        </div>
+                        <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-cyan-500/30 overflow-hidden">
+                            <div id="barProcess" class="bg-gradient-to-r from-indigo-600 to-fuchsia-400 h-full transition-all duration-500" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
 
-// ---------- Voz de salida (TTS) ----------
-let esVoice = null;
-function pickVoice(){
-  const vs = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('es'));
-  esVoice = vs.find(v => /mexico|latam|america|419/i.test(v.lang + v.name)) || vs[0] || null;
-}
-pickVoice();
-if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoice;
+                <!-- Circular Graphic Mini Canvas -->
+                <div class="mt-4 pt-3 border-t border-indigo-500/20 flex items-center justify-around">
+                    <div class="text-center">
+                        <canvas id="miniGauge1" width="60" height="60"></canvas>
+                        <span class="block text-[10px] font-mono-tech text-cyan-300/70 mt-1">NÚCLEO A</span>
+                    </div>
+                    <div class="text-center">
+                        <canvas id="miniGauge2" width="60" height="60"></canvas>
+                        <span class="block text-[10px] font-mono-tech text-purple-300/70 mt-1">MATRIZ B</span>
+                    </div>
+                </div>
+            </div>
 
-function speak(text, onEnd){
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  if (esVoice) u.voice = esVoice;
-  u.lang = 'es-419'; u.rate = 1.02; u.pitch = 1.05;
-  u.onend = () => { if (onEnd) onEnd(); };
-  u.onerror = () => { if (onEnd) onEnd(); };
-  speechSynthesis.speak(u);
-}
+            <!-- Waveform Visualizer Card -->
+            <div class="glass-panel glass-panel-interactive rounded-xl p-4 relative flex-1 flex flex-col justify-between min-h-[160px]">
+                <div class="hud-corner hud-corner-tl"></div>
+                <div class="hud-corner hud-corner-tr"></div>
+                <div class="hud-corner hud-corner-bl"></div>
+                <div class="hud-corner hud-corner-br"></div>
 
-// ---------- Voz de entrada (reconocimiento) ----------
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null, recording = false;
-if (SR){
-  rec = new SR();
-  rec.lang = 'es-419'; rec.interimResults = false; rec.maxAlternatives = 1;
-  rec.onstart  = () => { recording = true;  setState('listening'); };
-  rec.onend    = () => { recording = false; };
-  rec.onerror  = () => { recording = false; setState('idle'); };
-  rec.onresult = (ev) => {
-    const text = ev.results[0][0].transcript;
-    inputEl.value = text;
-    setState('idle');
-    send(text);
-  };
-}
-document.getElementById('mic').addEventListener('click', () => {
-  if (!rec){ addMsg('Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.', 'trinity'); return; }
-  if (recording){ rec.stop(); return; }
-  speechSynthesis.cancel(); setState('idle');
-  try { rec.start(); } catch(e){}
-});
+                <h3 class="font-orbitron text-xs font-semibold text-cyan-300 tracking-wider uppercase mb-2 flex items-center justify-between">
+                    <span><i class="fa-solid fa-wave-square mr-2 text-purple-400"></i>Espectro Cuántico</span>
+                    <span class="text-[10px] font-mono-tech text-purple-300/80" id="audioModeLabel">SINTETIZADOR</span>
+                </h3>
 
-// ---------- Conversación ----------
-async function send(text){
-  text = (text || '').trim();
-  if (!text) return;
-  inputEl.value = '';
-  addMsg(text, 'user');
-  setState('thinking');
+                <div class="flex-1 flex items-center justify-center my-2">
+                    <canvas id="waveformCanvas" class="w-full h-24 rounded border border-cyan-500/20 bg-black/40"></canvas>
+                </div>
 
-  const bubble = document.createElement('div');
-  bubble.className = 'msg trinity'; bubble.textContent = '...';
-  chatEl.appendChild(bubble); chatEl.scrollTop = chatEl.scrollHeight;
+                <div class="flex justify-between text-[11px] font-mono-tech text-indigo-300/60">
+                    <span>0Hz</span>
+                    <span>12kHz</span>
+                    <span>24kHz</span>
+                </div>
+            </div>
+        </aside>
 
-  let reply;
-  try {
-    const r = await fetch('/chat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({text})
-    });
-    const data = await r.json();
-    if (!data.ok){ throw new Error(data.error || 'Error desconocido'); }
-    reply = data.reply;
-  } catch(err){
-    bubble.textContent = 'No pude contactar a Gemini: ' + err.message;
-    setState('idle'); return;
-  }
+        <!-- CENTER AREA -->
+        <div class="flex-1 flex flex-col justify-end items-center pointer-events-none relative">
+            <!-- Subtle HUD Target Reticle Label -->
+            <div class="absolute top-8 text-center pointer-events-none">
+                <div class="font-orbitron text-[11px] tracking-widest text-cyan-400/80 uppercase">MODO INTERACTIVO TRINITY</div>
+                <div class="font-mono-tech text-[10px] text-purple-300/60">Mueve el cursor para perturbar el plasma azul</div>
+            </div>
+        </div>
 
-  // Efecto de escritura sincronizado con la voz
-  setState('speaking');
-  bubble.textContent = '';
-  let i = 0;
-  const typer = setInterval(() => {
-    bubble.textContent = reply.slice(0, ++i);
-    chatEl.scrollTop = chatEl.scrollHeight;
-    if (i >= reply.length) clearInterval(typer);
-  }, 24);
+        <!-- RIGHT HUD PANEL: AI Interactive Chat Console -->
+        <aside class="w-full md:w-96 flex flex-col h-[500px] md:h-auto pointer-events-auto">
+            <div class="glass-panel glass-panel-interactive rounded-xl flex-1 flex flex-col relative overflow-hidden">
+                <div class="hud-corner hud-corner-tl"></div>
+                <div class="hud-corner hud-corner-tr"></div>
+                <div class="hud-corner hud-corner-bl"></div>
+                <div class="hud-corner hud-corner-br"></div>
 
-  speak(reply, () => setState('idle'));
-}
+                <!-- Chat Header -->
+                <div class="p-4 border-b border-indigo-500/20 flex items-center justify-between bg-indigo-950/40">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d2ff]"></div>
+                        <h2 class="font-orbitron text-sm font-bold text-cyan-100 tracking-wider">CONSOLA TRINITY AI</h2>
+                    </div>
+                    <span class="font-mono-tech text-[10px] px-2 py-0.5 rounded border border-purple-500/40 text-purple-300 bg-purple-950/40">ONLINE</span>
+                </div>
 
-document.getElementById('send').addEventListener('click', () => send(inputEl.value));
-inputEl.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') send(inputEl.value); });
+                <!-- Chat Stream -->
+                <div id="chatStream" class="flex-1 p-4 overflow-y-auto space-y-4 font-sans text-sm">
+                    <!-- AI Welcome Message -->
+                    <div class="flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-xs shrink-0 font-orbitron shadow-[0_0_8px_rgba(0,200,255,0.3)]">
+                            TR
+                        </div>
+                        <div class="p-3 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
+                            <p class="font-mono-tech text-[10px] text-cyan-400 mb-1">[TRINITY AI - INICIALIZADO]</p>
+                            Saludos, Comandante. El núcleo de plasma de TRINITY está sincronizado y estabilizado. ¿Qué parámetros o consultas deseas procesar hoy?
+                        </div>
+                    </div>
+                </div>
 
-// Saludo inicial
-setState('speaking');
-addMsg("Hola, soy Trinity. Escríbeme o toca el micrófono para hablarme.", 'trinity');
-speak("Hola, soy Trinity. Escríbeme o toca el micrófono para hablarme.", () => setState('idle'));
-</script>
+                <!-- Quick Action Chips -->
+                <div class="px-4 py-2 border-t border-indigo-500/10 flex gap-2 overflow-x-auto font-mono-tech text-[11px]">
+                    <button class="chip-btn px-2.5 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
+                        ⚡ Calibrar TRINITY
+                    </button>
+                    <button class="chip-btn px-2.5 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
+                        🌌 Analizar Plasma Azul
+                    </button>
+                    <button class="chip-btn px-2.5 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
+                        🛡️ Campo Cuántico
+                    </button>
+                </div>
+
+                <!-- Input Box -->
+                <form id="chatForm" class="p-3 border-t border-indigo-500/20 bg-indigo-950/40 flex items-center gap-2">
+                    <input type="text" id="userInput" placeholder="Escribe un comando o consulta a TRINITY..." 
+                        class="flex-1 bg-black/50 border border-cyan-500/40 rounded-lg px-3 py-2 text-xs text-cyan-100 placeholder-indigo-400/50 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-mono-tech">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 hover:from-blue-500 hover:to-purple-400 text-white font-orbitron font-bold text-xs transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(0,180,255,0.4)]">
+                        <span>ENVIAR</span>
+                        <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- FOOTER STATUS BAR -->
+    <footer class="relative z-10 px-6 py-2 border-t border-indigo-500/20 glass-panel flex flex-wrap justify-between items-center text-[11px] font-mono-tech text-indigo-300/70">
+        <div class="flex items-center space-x-6">
+            <span>COORDINADAS: <span class="text-cyan-300">RA 05h 35m / DEC -05°23'</span></span>
+            <span>CAMPO MAGNÉTICO: <span class="text-purple-400">12.4 TESLA</span></span>
+            <span class="hidden sm:inline">CONEXIÓN NEURONAL: <span class="text-cyan-400">ESTABLE (8ms)</span></span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-cyan-400/80">INTERFAZ HUD TRINITY PLASMA</span>
+            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#00e5ff]"></span>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /**
+         * TRINITY PLASMA NEBULA & HUD RINGS ENGINE (REALISTIC STARFIELD EDITION)
+         */
+
+        const canvas = document.getElementById('nebulaCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height, centerX, centerY;
+        let mouseX = 0, mouseY = 0;
+        let targetMouseX = 0, targetMouseY = 0;
+        let coreEnergyPulse = 0; 
+        let audioReactivity = 0;
+        let statePulse = 0, statePulseTarget = 0;
+        let trinityState = 'idle';
+        function setTrinityState(s){
+            trinityState = s;
+            const el = document.getElementById('hudStatus');
+            if (el) el.innerText = {idle:'ÓPTIMO', listening:'ESCUCHANDO', thinking:'PROCESANDO', speaking:'RESPONDIENDO'}[s] || 'ÓPTIMO';
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        window.addEventListener('mousemove', (e) => {
+            targetMouseX = (e.clientX - centerX) * 0.15;
+            targetMouseY = (e.clientY - centerY) * 0.15;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                targetMouseX = (e.touches[0].clientX - centerX) * 0.15;
+                targetMouseY = (e.touches[0].clientY - centerY) * 0.15;
+            }
+        });
+
+        /* ===================================================
+           1. MINIATURE WHITE STARS & DEEP SPACE NEBULA DUST
+           =================================================== */
+        const STAR_COUNT = 180;
+        const stars = [];
+
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 1.5 + 0.3; // Fine miniature white stars
+                this.alpha = Math.random() * 0.8 + 0.2;
+                this.twinkleSpeed = (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1);
+                this.parallaxFactor = (this.size / 1.8) * 0.4;
+            }
+            update() {
+                this.alpha += this.twinkleSpeed;
+                if (this.alpha >= 1) {
+                    this.alpha = 1;
+                    this.twinkleSpeed = -Math.abs(this.twinkleSpeed);
+                } else if (this.alpha <= 0.15) {
+                    this.alpha = 0.15;
+                    this.twinkleSpeed = Math.abs(this.twinkleSpeed);
+                }
+            }
+            draw() {
+                const px = this.x + mouseX * this.parallaxFactor;
+                const py = this.y + mouseY * this.parallaxFactor;
+
+                ctx.save();
+                ctx.fillStyle = '#ffffff';
+                ctx.globalAlpha = this.alpha;
+                
+                if (this.size > 1.2) {
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 4;
+                }
+
+                ctx.beginPath();
+                ctx.arc(px, py, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < STAR_COUNT; i++) {
+            stars.push(new Star());
+        }
+
+        /* Sparks around core */
+        const SPARK_COUNT = 70;
+        const sparks = [];
+
+        class Spark {
+            constructor() {
+                this.init();
+            }
+            init() {
+                this.dist = Math.random() * 80 + 20;
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = Math.random() * 2.0 + 0.5;
+                this.size = Math.random() * 2.2 + 0.5;
+                this.life = Math.random() * 90 + 30;
+                this.maxLife = this.life;
+                this.color = Math.random() > 0.45 ? '#00f0ff' : '#c040ff';
+            }
+            update() {
+                this.dist += this.speed + coreEnergyPulse * 4;
+                this.life--;
+                if (this.life <= 0) {
+                    this.init();
+                }
+            }
+            draw(cx, cy) {
+                const opacity = (this.life / this.maxLife);
+                const px = cx + Math.cos(this.angle) * this.dist;
+                const py = cy + Math.sin(this.angle) * this.dist;
+
+                ctx.save();
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = opacity;
+                ctx.shadowColor = '#00e5ff';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(px, py, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < SPARK_COUNT; i++) {
+            sparks.push(new Spark());
+        }
+
+        /* ===================================================
+           2. CONCENTRIC TRINITY HUD RINGS & CORE PLASMA GLOW
+           =================================================== */
+        let ringRotation1 = 0;
+        let ringRotation2 = 0;
+        let ringRotation3 = 0;
+
+        function drawHUD(cx, cy) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const tp = coreEnergyPulse + statePulse;
+
+            // Ambient Core Plasma Glow Aura
+            const plasmaGlowRadius = 190 + tp * 40 + audioReactivity * 30;
+            const plasmaGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, plasmaGlowRadius);
+            plasmaGrad.addColorStop(0, 'rgba(0, 225, 255, 0.45)');
+            plasmaGrad.addColorStop(0.35, 'rgba(120, 30, 230, 0.22)');
+            plasmaGrad.addColorStop(0.7, 'rgba(20, 5, 60, 0.08)');
+            plasmaGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = plasmaGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, plasmaGlowRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            const baseGlow = 14 + tp * 30 + audioReactivity * 20;
+            ctx.shadowBlur = baseGlow;
+            ctx.shadowColor = '#00d2ff';
+
+            const scaleFactor = Math.min(width, height) < 640 ? 0.68 : 0.95;
+            ctx.scale(scaleFactor, scaleFactor);
+
+            const pulseMultiplier = 1 + tp * 2 + audioReactivity * 1.5;
+            ringRotation1 += 0.003 * pulseMultiplier;
+            ringRotation2 -= 0.005 * pulseMultiplier;
+            ringRotation3 += 0.008 * pulseMultiplier;
+
+            // --- CORE ORB ---
+            const coreRadius = 40 + Math.sin(Date.now() * 0.004) * 3.5 + tp * 16 + audioReactivity * 12;
+            const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius * 2.3);
+            coreGrad.addColorStop(0, '#ffffff');
+            coreGrad.addColorStop(0.2, '#90f0ff');
+            coreGrad.addColorStop(0.5, '#9933ff');
+            coreGrad.addColorStop(0.8, '#100030');
+            coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+            ctx.fillStyle = coreGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, coreRadius * 2.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Inner Globe Details
+            ctx.strokeStyle = 'rgba(200, 245, 255, 0.75)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(0, 0, coreRadius * 0.9, 0, Math.PI * 2);
+            ctx.stroke();
+
+            for (let i = -2; i <= 2; i++) {
+                ctx.beginPath();
+                ctx.ellipse(0, i * 10, Math.sqrt(Math.max(0, coreRadius*coreRadius - (i*10)*(i*10))), 4, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(0, 230, 255, 0.45)';
+                ctx.stroke();
+            }
+
+            // --- RING 1 ---
+            ctx.save();
+            ctx.rotate(ringRotation1);
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.85)';
+            ctx.lineWidth = 1.5;
+            const r1 = 70;
+            const ticks1 = 60;
+            for (let i = 0; i < ticks1; i++) {
+                const angle = (i / ticks1) * Math.PI * 2;
+                const len = i % 5 === 0 ? 10 : 4;
+                const x1 = Math.cos(angle) * r1;
+                const y1 = Math.sin(angle) * r1;
+                const x2 = Math.cos(angle) * (r1 + len);
+                const y2 = Math.sin(angle) * (r1 + len);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // --- RING 2 ---
+            ctx.save();
+            ctx.rotate(ringRotation2);
+            const r2 = 110;
+            ctx.strokeStyle = 'rgba(195, 80, 255, 0.95)';
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.arc(0, 0, r2, 0, Math.PI * 0.6);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, r2, Math.PI * 0.8, Math.PI * 1.4);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, r2, Math.PI * 1.6, Math.PI * 1.9);
+            ctx.stroke();
+
+            ctx.setLineDash([4, 8]);
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.65)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(0, 0, r2 + 12, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+
+            // --- RING 3 ---
+            ctx.save();
+            ctx.rotate(ringRotation3);
+            const r3 = 160;
+            ctx.strokeStyle = 'rgba(0, 200, 255, 0.75)';
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            ctx.arc(0, 0, r3, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const ticks3 = 120;
+            for (let i = 0; i < ticks3; i++) {
+                const angle = (i / ticks3) * Math.PI * 2;
+                let len = 4;
+                if (i % 10 === 0) len = 12;
+                else if (i % 5 === 0) len = 8;
+
+                const x1 = Math.cos(angle) * r3;
+                const y1 = Math.sin(angle) * r3;
+                const x2 = Math.cos(angle) * (r3 - len);
+                const y2 = Math.sin(angle) * (r3 - len);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+
+            ctx.font = '8px "Share Tech Mono"';
+            ctx.fillStyle = 'rgba(210, 235, 255, 0.9)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i < 360; i += 30) {
+                const rad = (i * Math.PI) / 180;
+                const tx = Math.cos(rad) * (r3 + 16);
+                const ty = Math.sin(rad) * (r3 + 16);
+                ctx.fillText(`${i}°`, tx, ty);
+            }
+            ctx.restore();
+
+            // --- RING 4 ---
+            ctx.save();
+            ctx.rotate(ringRotation1 * 0.5);
+            const r4 = 210;
+            ctx.strokeStyle = 'rgba(165, 30, 255, 0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(0, 0, r4, 0, Math.PI * 2);
+            ctx.stroke();
+
+            for (let i = 0; i < 4; i++) {
+                const angle = (i * Math.PI) / 2;
+                const nx = Math.cos(angle) * r4;
+                const ny = Math.sin(angle) * r4;
+
+                ctx.fillStyle = '#00f0ff';
+                ctx.beginPath();
+                ctx.arc(nx, ny, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(nx, ny, 8.5, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        /* ===================================================
+           3. MAIN ANIMATION LOOP
+           =================================================== */
+        function animate() {
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+
+            if (coreEnergyPulse > 0) {
+                coreEnergyPulse *= 0.95;
+                if (coreEnergyPulse < 0.001) coreEnergyPulse = 0;
+            }
+            statePulseTarget = trinityState==='idle' ? 0 :
+                trinityState==='listening' ? 0.4 :
+                trinityState==='thinking' ? 0.85 :
+                0.5 + 0.25 * Math.sin(performance.now() * 0.006);
+            statePulse += (statePulseTarget - statePulse) * 0.08;
+
+            // Deep Space Background with Subtle Purple Tint
+            const spaceGrad = ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, Math.max(width, height) * 0.8);
+            spaceGrad.addColorStop(0, '#040212');
+            spaceGrad.addColorStop(0.6, '#02010a');
+            spaceGrad.addColorStop(1, '#010005');
+
+            ctx.fillStyle = spaceGrad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Render Stars
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            const activeCenterX = centerX + mouseX * 0.8;
+            const activeCenterY = centerY + mouseY * 0.8;
+
+            sparks.forEach(s => {
+                s.update();
+                s.draw(activeCenterX, activeCenterY);
+            });
+
+            drawHUD(activeCenterX, activeCenterY);
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        /* ===================================================
+           5. MINI HUD GAUGES & WAVEFORM CANVAS
+           =================================================== */
+        function drawMiniGauges() {
+            const g1 = document.getElementById('miniGauge1').getContext('2d');
+            const g2 = document.getElementById('miniGauge2').getContext('2d');
+
+            function renderCircleGauge(c, val, color) {
+                c.clearRect(0, 0, 60, 60);
+                c.beginPath();
+                c.arc(30, 30, 22, 0, Math.PI * 2);
+                c.strokeStyle = 'rgba(0, 180, 255, 0.2)';
+                c.lineWidth = 4;
+                c.stroke();
+                
+                c.beginPath();
+                c.arc(30, 30, 22, -Math.PI/2, (-Math.PI/2) + (Math.PI * 2 * val));
+                c.strokeStyle = color;
+                c.lineWidth = 4;
+                c.stroke();
+                
+                c.fillStyle = '#88e5ff';
+                c.font = '10px "Share Tech Mono"';
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+                c.fillText(`${Math.round(val * 100)}%`, 30, 30);
+            }
+
+            let gVal1 = 0.82, gVal2 = 0.64;
+            setInterval(() => {
+                gVal1 = 0.75 + Math.random() * 0.2;
+                gVal2 = 0.55 + Math.random() * 0.25;
+                renderCircleGauge(g1, gVal1, '#00d2ff');
+                renderCircleGauge(g2, gVal2, '#b044ff');
+            }, 800);
+            renderCircleGauge(g1, gVal1, '#00d2ff');
+            renderCircleGauge(g2, gVal2, '#b044ff');
+        }
+        drawMiniGauges();
+
+        const waveCanvas = document.getElementById('waveformCanvas');
+        const waveCtx = waveCanvas.getContext('2d');
+
+        function renderWaveform() {
+            waveCanvas.width = waveCanvas.offsetWidth;
+            waveCanvas.height = waveCanvas.offsetHeight;
+            const w = waveCanvas.width;
+            const h = waveCanvas.height;
+
+            waveCtx.clearRect(0, 0, w, h);
+            waveCtx.lineWidth = 2;
+            waveCtx.strokeStyle = '#00e5ff';
+            waveCtx.shadowBlur = 8;
+            waveCtx.shadowColor = '#9000ff';
+
+            waveCtx.beginPath();
+            const sliceWidth = w / 40;
+            let x = 0;
+
+            for (let i = 0; i < 40; i++) {
+                const amp = (audioReactivity > 0 ? audioReactivity * 25 : 8) + (coreEnergyPulse * 15);
+                const y = h / 2 + Math.sin(Date.now() * 0.008 + i * 0.3) * amp * (Math.random() * 0.5 + 0.5);
+
+                if (i === 0) waveCtx.moveTo(x, y);
+                else waveCtx.lineTo(x, y);
+
+                x += sliceWidth;
+            }
+            waveCtx.stroke();
+            requestAnimationFrame(renderWaveform);
+        }
+        renderWaveform();
+
+        /* ===================================================
+           6. INTERACTIVE AI CHAT & USER COMMANDS
+           =================================================== */
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
+        const chatStream = document.getElementById('chatStream');
+        const btnPulseCore = document.getElementById('btnPulseCore');
+        const btnToggleAudio = document.getElementById('btnToggleAudio');
+        const micIcon = document.getElementById('micIcon');
+        const audioModeLabel = document.getElementById('audioModeLabel');
+
+        function triggerPulse(intensity = 1.0) {
+            coreEnergyPulse = intensity;
+            
+            document.getElementById('statFlowRate').innerText = (95 + Math.random() * 10).toFixed(1) + ' TV/s';
+            document.getElementById('statTemp').innerText = Math.floor(1100 + Math.random() * 150).toLocaleString() + ' K';
+            document.getElementById('barPlasma').style.width = Math.min(100, Math.floor(70 + Math.random() * 30)) + '%';
+            document.getElementById('valPlasma').innerText = document.getElementById('barPlasma').style.width;
+        }
+
+        btnPulseCore.addEventListener('click', () => {
+            triggerPulse(1.8);
+            appendChatMessage('SISTEMA', 'Sobrecarga de plasma azul iniciada. Concentración cuántica al 180%.', 'sys');
+        });
+
+        document.querySelectorAll('.chip-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const text = btn.innerText.replace(/^[^\w\s]+/, '').trim();
+                userInput.value = text;
+                chatForm.dispatchEvent(new Event('submit'));
+            });
+        });
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = userInput.value.trim();
+            if (!query) return;
+            userInput.value = '';
+            sendToTrinity(query);
+        });
+
+        let ttsVoice = null;
+        function pickVoice(){
+            const vs = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('es'));
+            ttsVoice = vs.find(v => /mexico|latam|america|419/i.test(v.lang + ' ' + v.name)) || vs[0] || null;
+        }
+        pickVoice();
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoice;
+
+        function speakTrinity(text, onEnd){
+            speechSynthesis.cancel();
+            if (rec && recActive) rec.stop();
+            const u = new SpeechSynthesisUtterance(text);
+            if (ttsVoice) u.voice = ttsVoice;
+            u.lang = 'es-419'; u.rate = 1.02; u.pitch = 1.05;
+            const done = () => { if (isListening && rec) { try { rec.start(); } catch(e){} } if (onEnd) onEnd(); };
+            u.onend = done; u.onerror = done;
+            speechSynthesis.speak(u);
+        }
+
+        async function sendToTrinity(query){
+            appendChatMessage('COMANDANTE', query, 'user');
+            setTrinityState('thinking');
+            triggerPulse(1.2);
+
+            const pending = document.createElement('div');
+            pending.className = 'flex items-start gap-3';
+            pending.innerHTML = '<div class="w-7 h-7 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-xs shrink-0 font-orbitron shadow-[0_0_8px_rgba(0,200,255,0.3)]">TR</div>' +
+                '<div class="p-3 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm">' +
+                '<p class="font-mono-tech text-[10px] text-cyan-400 mb-1">[TRINITY AI - RESPUESTA]</p>' +
+                '<span class="text-indigo-300/70 animate-pulse">Procesando con Gemini...</span></div>';
+            chatStream.appendChild(pending);
+            chatStream.scrollTop = chatStream.scrollHeight;
+            const bubbleText = pending.querySelector('span');
+
+            let reply;
+            try {
+                const r = await fetch('/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text: query}) });
+                const data = await r.json();
+                if (!data.ok) throw new Error(data.error || 'Error desconocido');
+                reply = data.reply;
+            } catch(err) {
+                bubbleText.classList.remove('animate-pulse','text-indigo-300/70');
+                bubbleText.textContent = 'No pude contactar a Gemini: ' + err.message;
+                setTrinityState('idle');
+                return;
+            }
+
+            bubbleText.classList.remove('animate-pulse','text-indigo-300/70');
+            setTrinityState('speaking');
+            let i = 0;
+            const typer = setInterval(() => {
+                bubbleText.textContent = reply.slice(0, ++i);
+                chatStream.scrollTop = chatStream.scrollHeight;
+                if (i >= reply.length) clearInterval(typer);
+            }, 24);
+
+            speakTrinity(reply, () => setTrinityState('idle'));
+        }
+
+        function appendChatMessage(sender, text, type = 'ai') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex items-start gap-3';
+
+            if (type === 'user') {
+                msgDiv.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-cyan-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-xs shrink-0 font-orbitron">
+                        CMD
+                    </div>
+                    <div class="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-100 max-w-[85%] text-xs leading-relaxed">
+                        <p class="font-mono-tech text-[10px] text-cyan-400 mb-1">[COMANDO USUARIO]</p>
+                        ${escapeHTML(text)}
+                    </div>
+                `;
+            } else if (type === 'sys') {
+                msgDiv.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-400/50 flex items-center justify-center text-purple-300 text-xs shrink-0 font-orbitron">
+                        SYS
+                    </div>
+                    <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 max-w-[85%] text-xs leading-relaxed font-mono-tech">
+                        ${escapeHTML(text)}
+                    </div>
+                `;
+            } else {
+                msgDiv.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-xs shrink-0 font-orbitron shadow-[0_0_8px_rgba(0,200,255,0.3)]">
+                        TR
+                    </div>
+                    <div class="p-3 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
+                        <p class="font-mono-tech text-[10px] text-cyan-400 mb-1">[TRINITY AI - RESPUESTA]</p>
+                        ${escapeHTML(text)}
+                    </div>
+                `;
+            }
+
+            chatStream.appendChild(msgDiv);
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        /* ===================================================
+           7. REAL-TIME MIC AUDIO REACTIVITY
+           =================================================== */
+        let audioCtx, analyser, dataArray;
+        let isListening = false;
+
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let rec = null, recActive = false;
+        if (SR) {
+            rec = new SR();
+            rec.lang = 'es-419'; rec.interimResults = false; rec.maxAlternatives = 1;
+            rec.onstart = () => { recActive = true; setTrinityState('listening'); };
+            rec.onend = () => { recActive = false; if (trinityState === 'listening') setTrinityState('idle'); };
+            rec.onerror = () => { recActive = false; if (trinityState === 'listening') setTrinityState('idle'); };
+            rec.onresult = (ev) => {
+                const text = ev.results[0][0].transcript;
+                userInput.value = text;
+                setTrinityState('idle');
+                sendToTrinity(text);
+                if (isListening) { try { rec.start(); } catch(e){} }
+            };
+        }
+
+        btnToggleAudio.addEventListener('click', async () => {
+            if (!isListening) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    const source = audioCtx.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    analyser.fftSize = 64;
+                    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    isListening = true;
+                    micIcon.className = "fa-solid fa-microphone text-cyan-400 animate-pulse";
+                    btnToggleAudio.classList.add('border-cyan-400', 'bg-indigo-800/60');
+                    audioModeLabel.innerText = SR ? "VOZ ACTIVA · HABLA" : "MICRÓFONO EN VIVO";
+
+                    if (rec) { try { rec.start(); } catch(e){} }
+                    updateAudioData();
+                } catch (err) {
+                    appendChatMessage('SISTEMA', 'No se pudo acceder al micrófono. Revisa los permisos del navegador (requiere HTTPS).', 'sys');
+                }
+            } else {
+                isListening = false;
+                if (rec && recActive) rec.stop();
+                if (audioCtx) audioCtx.close();
+                micIcon.className = "fa-solid fa-microphone-slash";
+                btnToggleAudio.classList.remove('border-cyan-400', 'bg-indigo-800/60');
+                audioModeLabel.innerText = "SINTETIZADOR";
+                audioReactivity = 0;
+                setTrinityState('idle');
+            }
+        });
+
+        function updateAudioData() {
+            if (!isListening) return;
+            analyser.getByteFrequencyData(dataArray);
+            
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            const avg = sum / dataArray.length;
+            audioReactivity = avg / 128.0;
+
+            requestAnimationFrame(updateAudioData);
+        }
+    </script>
 </body>
 </html>

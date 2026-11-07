@@ -11,35 +11,46 @@ MAKE_WEBHOOK = os.environ.get(
 
 app = Flask(__name__)
 
+FALLBACK_KEYS = ("reply", "text", "answer", "output", "result", "content", "message", "response")
 
-@app.get("/")
-def home():
-    return send_file("static/index.html")
+
+def extract(data):
+    """Extrae texto plano de cualquier formato conocido de respuesta."""
+    if isinstance(data, str):
+        return data.strip()
+    if isinstance(data, list) and data:
+        return extract(data[0])
+    if not isinstance(data, dict):
+        return str(data)
+    # Formato nativo de respuesta de Gemini API
+    try:
+        return extract(data["candidates"][0]["content"]["parts"][0]["text"])
+    except Exception:
+        pass
+    # Formato de contenido Gemini (parts directo)
+    if isinstance(data.get("parts"), list):
+        joined = "".join(p.get("text", "") for p in data["parts"] if isinstance(p, dict))
+        if joined.strip():
+            return joined.strip()
+    # Claves comunes, incluida "response" (formato del webhook del usuario)
+    for k in FALLBACK_KEYS:
+        if k in data and data[k] is not None:
+            return extract(data[k])
+    return json.dumps(data, ensure_ascii=False)
 
 
 def parse_reply(raw):
-    """Detecta el formato de la respuesta de Gemini/Make y devuelve texto plano."""
     text = (raw or "").strip()
     try:
         data = json.loads(text)
     except Exception:
         return text  # era texto plano
+    return extract(data)
 
-    if isinstance(data, str):
-        return data
-    # Formato nativo de respuesta de Gemini API
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        pass
-    # Formato de contenido Gemini (por si Make responde con el mismo shape de entrada)
-    if isinstance(data, dict) and isinstance(data.get("parts"), list):
-        return "".join(p.get("text", "") for p in data["parts"] if isinstance(p, dict))
-    # Claves comunes
-    for k in ("reply", "text", "answer", "output", "result", "content", "message"):
-        if k in data:
-            return str(data[k])
-    return text
+
+@app.get("/")
+def home():
+    return send_file("static/index.html")
 
 
 @app.post("/chat")
@@ -48,13 +59,23 @@ def chat():
     if not user_text:
         return jsonify({"ok": False, "error": "Mensaje vacío"}), 400
 
-    # Mismo formato que tu escenario de Make ya espera
-    payload = {"role": "user", "parts": [{"text": user_text}]}
+    # Enviamos el mensaje en varios formatos para que el trigger de Make
+    # encuentre el campo que su escenario espera (message, text o Gemini parts)
+    payload = {
+        "message": user_text,
+        "text": user_text,
+        "role": "user",
+        "parts": [{"text": user_text}],
+    }
     try:
         r = requests.post(MAKE_WEBHOOK, json=payload, timeout=90)
         reply = parse_reply(r.text)
         if not reply:
-            return jsonify({"ok": False, "error": "Respuesta vacía de Make/Gemini", "raw": r.text[:500]}), 502
+            return jsonify({
+                "ok": False,
+                "error": "Make respondió pero sin texto. Revisa el mapeo de la respuesta en el webhook.",
+                "raw": r.text[:500],
+            }), 502
         return jsonify({"ok": True, "reply": reply})
     except requests.Timeout:
         return jsonify({"ok": False, "error": "Gemini tardó demasiado, intenta de nuevo"}), 504

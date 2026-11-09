@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRINITY Plasma Nebula AI Interface</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Sci-Fi Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #020108;
+            color: #e2e8ff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
+
+        /* Realistic Hyper-detailed Sci-Fi Glassmorphism Modules */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(8, 6, 26, 0.85) 0%, rgba(4, 2, 14, 0.92) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 210, 255, 0.25);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                        inset 0 0 20px rgba(130, 60, 255, 0.08);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .glass-panel-interactive {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-panel-interactive:hover {
+            border-color: rgba(0, 230, 255, 0.55);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.98),
+                        0 0 25px rgba(0, 210, 255, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                        inset 0 0 25px rgba(0, 200, 255, 0.12);
+        }
+
+        /* Metallic Frame Border Lines */
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(0, 210, 255, 0.05) 50%, rgba(140, 0, 255, 0.2));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Glowing text & elements */
+        .glow-text-cyan {
+            text-shadow: 0 0 10px rgba(0, 220, 255, 0.8), 0 0 20px rgba(0, 140, 255, 0.5);
+        }
+
+        /* Realistic LED status lights */
+        .led-indicator {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* Custom Scrollbar for Chat */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 6, 30, 0.4);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 180, 255, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(160, 80, 255, 0.8);
+        }
+
+        /* Sci-fi HUD corners */
+        .hud-corner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: rgba(0, 230, 255, 0.75);
+            pointer-events: none;
+            z-index: 5;
+        }
+        .hud-corner-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; border-top-left-radius: 4px; }
+        .hud-corner-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; border-top-right-radius: 4px; }
+        .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; border-bottom-left-radius: 4px; }
+        .hud-corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 4px; }
+
+        /* Scanning grid line animation */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        .scanline-effect {
+            position: fixed;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 230, 255, 0.35), transparent);
+            opacity: 0.5;
+            animation: scanline 9s linear infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Grid Background Overlay */
+        .bg-grid {
+            background-size: 60px 60px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 180, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(140, 0, 255, 0.03) 1px, transparent 1px);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body class="relative">
+
+    <!-- Canvas Layer for Plasma Nebula & Concentric HUD Rings -->
+    <canvas id="nebulaCanvas" class="fixed inset-0 w-full h-full z-0"></canvas>
+
+    <!-- Sci-fi Tech Grid Overlay -->
+    <div class="fixed inset-0 bg-grid z-0 pointer-events-none opacity-40"></div>
+    <div class="scanline-effect z-0"></div>
+
+    <!-- HEADER / TOP HUD BAR -->
+    <header class="relative z-10 flex items-center justify-between px-4 md:px-6 py-3 border-b border-cyan-500/20 glass-panel shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="relative w-9 h-9 flex items-center justify-center rounded-lg bg-indigo-950/80 border border-cyan-400/50 text-cyan-400 font-orbitron font-bold shadow-[0_0_15px_rgba(0,200,255,0.4)]">
+                <i class="fa-solid fa-atom text-lg animate-spin" style="animation-duration: 12s;"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron font-extrabold text-base md:text-xl tracking-wider text-cyan-100 glow-text-cyan flex items-center gap-2">
+                    TRINITY <span class="text-[10px] md:text-xs px-2 py-0.5 rounded bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-400/50 text-purple-300 font-mono-tech shadow-[0_0_8px_rgba(160,80,255,0.3)]">v4.9 STARFIELD</span>
+                </h1>
+                <p class="text-[10px] md:text-xs font-mono-tech text-cyan-400/80 tracking-widest uppercase flex items-center gap-1.5">
+                    <span class="led-indicator text-cyan-400 bg-cyan-400"></span> Núcleo Plasma Espacial
+                </p>
+            </div>
+        </div>
+
+        <!-- Telemetry Stats Top Center -->
+        <div class="hidden lg:flex items-center space-x-6 font-mono-tech text-xs bg-black/40 px-5 py-2 rounded-full border border-cyan-500/20 backdrop-blur-md">
+            <div class="flex items-center space-x-2">
+                <span class="led-indicator text-emerald-400 bg-emerald-400 animate-pulse"></span>
+                <span class="text-indigo-300/70">ESTADO:</span>
+                <span id="hudStatus" class="text-cyan-300 font-bold tracking-wider">ÓPTIMO</span>
+            </div>
+            <div>
+                <span class="text-indigo-300/70">FLUJO:</span>
+                <span id="statFlowRate" class="text-purple-300 font-bold">98.4 TV/s</span>
+            </div>
+            <div>
+                <span class="text-indigo-300/70">TEMP:</span>
+                <span id="statTemp" class="text-cyan-300 font-bold">1,120 K</span>
+            </div>
+            <div>
+                <span class="text-indigo-300/70">FREQ:</span>
+                <span id="statFreq" class="text-fuchsia-300 font-bold">1420 MHz</span>
+            </div>
+        </div>
+
+        <!-- System Controls Top Right -->
+        <div class="flex items-center space-x-2">
+            <button id="btnPulseCore" class="px-2.5 py-1.5 rounded bg-indigo-600/30 hover:bg-indigo-600/50 border border-cyan-500/50 text-cyan-200 text-[11px] md:text-xs font-orbitron transition-all flex items-center gap-1.5 shadow-lg">
+                <i class="fa-solid fa-bolt text-cyan-400"></i> <span class="hidden sm:inline">SOBRECARGA</span>
+            </button>
+            <button id="btnToggleAudio" class="p-2 rounded bg-indigo-950/60 hover:bg-purple-800/40 border border-purple-500/30 text-purple-300 text-xs md:text-sm transition-all" title="Audio/Mic Reactivity">
+                <i id="micIcon" class="fa-solid fa-microphone-slash"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-[280px_1fr_340px] xl:grid-cols-[320px_1fr_380px] p-3 md:p-6 gap-4 pointer-events-none">
+        
+        <!-- LEFT HUD PANEL: Telemetry & Status -->
+        <aside class="flex flex-col gap-4 pointer-events-auto">
+            <!-- System Metrics Card -->
+            <div class="glass-panel glass-panel-interactive rounded-xl p-3.5 relative">
+                <div class="hud-corner hud-corner-tl"></div>
+                <div class="hud-corner hud-corner-tr"></div>
+                <div class="hud-corner hud-corner-bl"></div>
+                <div class="hud-corner hud-corner-br"></div>
+
+                <h3 class="font-orbitron text-xs font-semibold text-cyan-300 tracking-wider uppercase mb-2.5 flex items-center justify-between border-b border-cyan-500/20 pb-2">
+                    <span><i class="fa-solid fa-chart-line mr-2 text-cyan-400"></i>Telemetría Núcleo</span>
+                    <span class="animate-ping inline-flex h-2 w-2 rounded-full bg-purple-400"></span>
+                </h3>
+
+                <!-- Bar Gauges -->
+                <div class="space-y-2.5 font-mono-tech text-xs">
+                    <div>
+                        <div class="flex justify-between text-indigo-200 mb-1">
+                            <span>ESTABILIDAD CAMPO</span>
+                            <span id="valStability">96%</span>
+                        </div>
+                        <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-cyan-500/30 overflow-hidden">
+                            <div id="barStability" class="bg-gradient-to-r from-blue-600 to-cyan-400 h-full transition-all duration-500" style="width: 96%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-indigo-200 mb-1">
+                            <span>DENSIDAD PLASMA</span>
+                            <span id="valPlasma">78%</span>
+                        </div>
+                        <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-purple-500/30 overflow-hidden">
+                            <div id="barPlasma" class="bg-gradient-to-r from-purple-700 via-indigo-500 to-cyan-400 h-full transition-all duration-500" style="width: 78%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-indigo-200 mb-1">
+                            <span>VELOCIDAD PROCESO</span>
+                            <span id="valProcess">4.2 GHZ</span>
+                        </div>
+                        <div class="w-full bg-indigo-950/80 rounded-full h-1.5 border border-cyan-500/30 overflow-hidden">
+                            <div id="barProcess" class="bg-gradient-to-r from-indigo-600 to-fuchsia-400 h-full transition-all duration-500" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Circular Graphic Mini Canvas -->
+                <div class="mt-3 pt-2.5 border-t border-indigo-500/20 flex items-center justify-around">
+                    <div class="text-center">
+                        <canvas id="miniGauge1" width="54" height="54"></canvas>
+                        <span class="block text-[10px] font-mono-tech text-cyan-300/70 mt-0.5">NÚCLEO A</span>
+                    </div>
+                    <div class="text-center">
+                        <canvas id="miniGauge2" width="54" height="54"></canvas>
+                        <span class="block text-[10px] font-mono-tech text-purple-300/70 mt-0.5">MATRIZ B</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waveform Visualizer Card -->
+            <div class="glass-panel glass-panel-interactive rounded-xl p-3.5 relative flex flex-col justify-between min-h-[140px]">
+                <div class="hud-corner hud-corner-tl"></div>
+                <div class="hud-corner hud-corner-tr"></div>
+                <div class="hud-corner hud-corner-bl"></div>
+                <div class="hud-corner hud-corner-br"></div>
+
+                <h3 class="font-orbitron text-xs font-semibold text-cyan-300 tracking-wider uppercase mb-1.5 flex items-center justify-between">
+                    <span><i class="fa-solid fa-wave-square mr-2 text-purple-400"></i>Espectro Cuántico</span>
+                    <span class="text-[10px] font-mono-tech text-purple-300/80" id="audioModeLabel">SINTETIZADOR</span>
+                </h3>
+
+                <div class="flex-1 flex items-center justify-center my-1">
+                    <canvas id="waveformCanvas" class="w-full h-20 rounded border border-cyan-500/20 bg-black/40"></canvas>
+                </div>
+
+                <div class="flex justify-between text-[10px] font-mono-tech text-indigo-300/60">
+                    <span>0Hz</span>
+                    <span>12kHz</span>
+                    <span>24kHz</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER AREA -->
+        <div class="hidden lg:flex flex-col justify-end items-center pointer-events-none relative">
+            <div class="absolute top-2 text-center pointer-events-none">
+                <div class="font-orbitron text-[10px] tracking-widest text-cyan-400/80 uppercase">MODO INTERACTIVO TRINITY</div>
+                <div class="font-mono-tech text-[9px] text-purple-300/60">Mueve el cursor para perturbar el plasma azul</div>
+            </div>
+        </div>
+
+        <!-- RIGHT HUD PANEL: AI Interactive Chat Console -->
+        <aside class="flex flex-col h-[420px] lg:h-auto pointer-events-auto">
+            <div class="glass-panel glass-panel-interactive rounded-xl flex-1 flex flex-col relative overflow-hidden">
+                <div class="hud-corner hud-corner-tl"></div>
+                <div class="hud-corner hud-corner-tr"></div>
+                <div class="hud-corner hud-corner-bl"></div>
+                <div class="hud-corner hud-corner-br"></div>
+
+                <!-- Chat Header -->
+                <div class="p-3.5 border-b border-indigo-500/20 flex items-center justify-between bg-indigo-950/40">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d2ff]"></div>
+                        <h2 class="font-orbitron text-xs md:text-sm font-bold text-cyan-100 tracking-wider">CONSOLA TRINITY AI</h2>
+                    </div>
+                    <span class="font-mono-tech text-[10px] px-2 py-0.5 rounded border border-purple-500/40 text-purple-300 bg-purple-950/40">ONLINE</span>
+                </div>
+
+                <!-- Chat Stream -->
+                <div id="chatStream" class="flex-1 p-3.5 overflow-y-auto space-y-3 font-sans text-xs md:text-sm">
+                    <!-- AI Welcome Message -->
+                    <div class="flex items-start gap-2.5">
+                        <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron shadow-[0_0_8px_rgba(0,200,255,0.3)]">
+                            TR
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
+                            <p class="font-mono-tech text-[9px] text-cyan-400 mb-1">[TRINITY AI - INICIALIZADO]</p>
+                            Saludos, Comandante. El núcleo de plasma de TRINITY está sincronizado y estabilizado. ¿Qué parámetros o consultas deseas procesar hoy?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Chips -->
+                <div class="px-3 py-1.5 border-t border-indigo-500/10 flex gap-1.5 overflow-x-auto font-mono-tech text-[10px]">
+                    <button class="chip-btn px-2 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
+                        ⚡ Calibrar TRINITY
+                    </button>
+                    <button class="chip-btn px-2 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
+                        🌌 Plasma Azul
+                    </button>
+                    <button class="chip-btn px-2 py-1 rounded-full bg-indigo-900/40 hover:bg-purple-700/40 border border-cyan-500/30 text-cyan-200 transition-all whitespace-nowrap">
+                        🛡️ Campo Cuántico
+                    </button>
+                </div>
+
+                <!-- Input Box -->
+                <form id="chatForm" class="p-2.5 border-t border-indigo-500/20 bg-indigo-950/40 flex items-center gap-2">
+                    <input type="text" id="userInput" placeholder="Escribe un comando a TRINITY..." 
+                        class="flex-1 bg-black/50 border border-cyan-500/40 rounded-lg px-3 py-2 text-xs text-cyan-100 placeholder-indigo-400/50 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-mono-tech">
+                    <button type="submit" class="px-3 py-2 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 hover:from-blue-500 hover:to-purple-400 text-white font-orbitron font-bold text-xs transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(0,180,255,0.4)]">
+                        <span>ENVIAR</span>
+                        <i class="fa-solid fa-paper-plane text-[9px]"></i>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- FOOTER STATUS BAR -->
+    <footer class="relative z-10 px-4 md:px-6 py-2 border-t border-indigo-500/20 glass-panel flex flex-wrap justify-between items-center text-[10px] md:text-[11px] font-mono-tech text-indigo-300/70 shrink-0">
+        <div class="flex items-center space-x-4">
+            <span>COORD: <span class="text-cyan-300">RA 05h 35m / DEC -05°23'</span></span>
+            <span class="hidden sm:inline">MAG: <span class="text-purple-400">12.4 TESLA</span></span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="text-cyan-400/80">HUD TRINITY PLASMA</span>
+            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#00e5ff]"></span>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const canvas = document.getElementById('nebulaCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height, centerX, centerY;
+        let mouseX = 0, mouseY = 0;
+        let targetMouseX = 0, targetMouseY = 0;
+        let coreEnergyPulse = 0; 
+        let audioReactivity = 0;
+        let statePulse = 0;
+        let trinityState = 'idle';
+
+        function setTrinityState(s){
+            trinityState = s;
+            const el = document.getElementById('hudStatus');
+            if (el) el.innerText = {idle:'ÓPTIMO', listening:'ESCUCHANDO', thinking:'PROCESANDO', speaking:'RESPONDIENDO'}[s] || 'ÓPTIMO';
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        window.addEventListener('mousemove', (e) => {
+            targetMouseX = (e.clientX - centerX) * 0.15;
+            targetMouseY = (e.clientY - centerY) * 0.15;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                targetMouseX = (e.touches[0].clientX - centerX) * 0.15;
+                targetMouseY = (e.touches[0].clientY - centerY) * 0.15;
+            }
+        });
+
+        /* Miniature White Stars */
+        const STAR_COUNT = 180;
+        const stars = [];
+
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 1.5 + 0.3;
+                this.alpha = Math.random() * 0.8 + 0.2;
+                this.twinkleSpeed = (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1);
+                this.parallaxFactor = (this.size / 1.8) * 0.4;
+            }
+            update() {
+                this.alpha += this.twinkleSpeed;
+                if (this.alpha >= 1) {
+                    this.alpha = 1;
+                    this.twinkleSpeed = -Math.abs(this.twinkleSpeed);
+                } else if (this.alpha <= 0.15) {
+                    this.alpha = 0.15;
+                    this.twinkleSpeed = Math.abs(this.twinkleSpeed);
+                }
+            }
+            draw() {
+                const px = this.x + mouseX * this.parallaxFactor;
+                const py = this.y + mouseY * this.parallaxFactor;
+
+                ctx.save();
+                ctx.fillStyle = '#ffffff';
+                ctx.globalAlpha = this.alpha;
+                
+                if (this.size > 1.2) {
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 4;
+                }
+
+                ctx.beginPath();
+                ctx.arc(px, py, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < STAR_COUNT; i++) {
+            stars.push(new Star());
+        }
+
+        /* Sparks around core */
+        const SPARK_COUNT = 60;
+        const sparks = [];
+
+        class Spark {
+            constructor() {
+                this.init();
+            }
+            init() {
+                this.dist = Math.random() * 70 + 20;
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = Math.random() * 1.8 + 0.4;
+                this.size = Math.random() * 2 + 0.4;
+                this.life = Math.random() * 80 + 20;
+                this.maxLife = this.life;
+                this.color = Math.random() > 0.4 ? '#00f0ff' : '#c040ff';
+            }
+            update() {
+                this.dist += this.speed + coreEnergyPulse * 4;
+                this.life--;
+                if (this.life <= 0) {
+                    this.init();
+                }
+            }
+            draw(cx, cy) {
+                const opacity = (this.life / this.maxLife);
+                const px = cx + Math.cos(this.angle) * this.dist;
+                const py = cy + Math.sin(this.angle) * this.dist;
+
+                ctx.save();
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = opacity;
+                ctx.shadowColor = '#00e5ff';
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.arc(px, py, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < SPARK_COUNT; i++) {
+            sparks.push(new Spark());
+        }
+
+        /* Concentric HUD Rings */
+        let ringRotation1 = 0;
+        let ringRotation2 = 0;
+        let ringRotation3 = 0;
+
+        function drawHUD(cx, cy) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const tp = coreEnergyPulse + statePulse;
+
+            const plasmaGlowRadius = 170 + tp * 35 + audioReactivity * 25;
+            const plasmaGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, plasmaGlowRadius);
+            plasmaGrad.addColorStop(0, 'rgba(0, 225, 255, 0.4)');
+            plasmaGrad.addColorStop(0.35, 'rgba(120, 30, 230, 0.2)');
+            plasmaGrad.addColorStop(0.7, 'rgba(20, 5, 60, 0.06)');
+            plasmaGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = plasmaGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, plasmaGlowRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            const baseGlow = 14 + tp * 25 + audioReactivity * 15;
+            ctx.shadowBlur = baseGlow;
+            ctx.shadowColor = '#00d2ff';
+
+            const scaleFactor = Math.min(width, height) < 768 ? 0.65 : 0.88;
+            ctx.scale(scaleFactor, scaleFactor);
+
+            const pulseMultiplier = 1 + tp * 2 + audioReactivity * 1.5;
+            ringRotation1 += 0.003 * pulseMultiplier;
+            ringRotation2 -= 0.005 * pulseMultiplier;
+            ringRotation3 += 0.008 * pulseMultiplier;
+
+            // Core Orb
+            const coreRadius = 38 + Math.sin(Date.now() * 0.004) * 3 + tp * 14 + audioReactivity * 10;
+            const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius * 2.2);
+            coreGrad.addColorStop(0, '#ffffff');
+            coreGrad.addColorStop(0.2, '#90f0ff');
+            coreGrad.addColorStop(0.5, '#9933ff');
+            coreGrad.addColorStop(0.8, '#100030');
+            coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+            ctx.fillStyle = coreGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, coreRadius * 2.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ring 1
+            ctx.save();
+            ctx.rotate(ringRotation1);
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.85)';
+            ctx.lineWidth = 1.5;
+            const r1 = 65;
+            for (let i = 0; i < 50; i++) {
+                const angle = (i / 50) * Math.PI * 2;
+                const len = i % 5 === 0 ? 8 : 3;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(angle) * r1, Math.sin(angle) * r1);
+                ctx.lineTo(Math.cos(angle) * (r1 + len), Math.sin(angle) * (r1 + len));
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // Ring 2
+            ctx.save();
+            ctx.rotate(ringRotation2);
+            const r2 = 100;
+            ctx.strokeStyle = 'rgba(195, 80, 255, 0.9)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(0, 0, r2, 0, Math.PI * 0.6);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, r2, Math.PI * 0.8, Math.PI * 1.4);
+            ctx.stroke();
+            ctx.restore();
+
+            // Ring 3
+            ctx.save();
+            ctx.rotate(ringRotation3);
+            const r3 = 145;
+            ctx.strokeStyle = 'rgba(0, 200, 255, 0.7)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(0, 0, r3, 0, Math.PI * 2);
+            ctx.stroke();
+
+            for (let i = 0; i < 90; i++) {
+                const angle = (i / 90) * Math.PI * 2;
+                const len = i % 10 === 0 ? 10 : 5;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(angle) * r3, Math.sin(angle) * r3);
+                ctx.lineTo(Math.cos(angle) * (r3 - len), Math.sin(angle) * (r3 - len));
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        /* Mini Canvas Gauges */
+        function drawMiniGauges() {
+            const drawRing = (id, pct, color) => {
+                const c = document.getElementById(id);
+                if (!c) return;
+                const cx = c.getContext('2d');
+                cx.clearRect(0,0,c.width,c.height);
+                cx.beginPath();
+                cx.arc(27, 27, 22, 0, Math.PI*2);
+                cx.strokeStyle = 'rgba(255,255,255,0.08)';
+                cx.lineWidth = 3;
+                cx.stroke();
+
+                cx.beginPath();
+                cx.arc(27, 27, 22, -Math.PI/2, (-Math.PI/2) + (Math.PI*2*(pct/100)));
+                cx.strokeStyle = color;
+                cx.lineWidth = 3;
+                cx.stroke();
+
+                cx.fillStyle = '#e2e8ff';
+                cx.font = '11px "Share Tech Mono"';
+                cx.textAlign = 'center';
+                cx.textBaseline = 'middle';
+                cx.fillText(`${pct}%`, 27, 27);
+            };
+            drawRing('miniGauge1', 87, '#00f0ff');
+            drawRing('miniGauge2', 59, '#a855f7');
+        }
+
+        /* Waveform Animation */
+        const waveCanvas = document.getElementById('waveformCanvas');
+        const waveCtx = waveCanvas.getContext('2d');
+        let wavePhase = 0;
+
+        function drawWaveform() {
+            if(!waveCanvas) return;
+            waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+            waveCtx.beginPath();
+            waveCtx.strokeStyle = '#00f0ff';
+            waveCtx.lineWidth = 1.5;
+
+            const w = waveCanvas.width;
+            const h = waveCanvas.height;
+            wavePhase += 0.08;
+
+            for (let x = 0; x < w; x++) {
+                const y = h/2 + Math.sin(x * 0.04 + wavePhase) * (8 + audioReactivity * 15) + Math.cos(x * 0.02 - wavePhase * 0.5) * 4;
+                if (x === 0) waveCtx.moveTo(x, y);
+                else waveCtx.lineTo(x, y);
+            }
+            waveCtx.stroke();
+        }
+
+        /* Main Render Loop */
+        function animate() {
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+
+            if (coreEnergyPulse > 0) {
+                coreEnergyPulse *= 0.95;
+                if (coreEnergyPulse < 0.001) coreEnergyPulse = 0;
+            }
+
+            statePulse += (Math.sin(Date.now() * 0.003) * 0.08 - statePulse) * 0.1;
+
+            // Background Deep Space Black
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
+
+            // Update & Draw Stars
+            for (let star of stars) {
+                star.update();
+                star.draw();
+            }
+
+            const cx = centerX + mouseX;
+            const cy = centerY + mouseY;
+
+            // Draw Sparks
+            for (let spark of sparks) {
+                spark.update();
+                spark.draw(cx, cy);
+            }
+
+            // Draw HUD
+            drawHUD(cx, cy);
+            drawWaveform();
+
+            requestAnimationFrame(animate);
+        }
+
+        drawMiniGauges();
+        animate();
+
+        /* Interactive Controls */
+        document.getElementById('btnPulseCore').addEventListener('click', () => {
+            coreEnergyPulse = 1.8;
+            setTrinityState('thinking');
+            setTimeout(() => setTrinityState('idle'), 2500);
+        });
+
+        let audioActive = false;
+        document.getElementById('btnToggleAudio').addEventListener('click', () => {
+            audioActive = !audioActive;
+            const icon = document.getElementById('micIcon');
+            const label = document.getElementById('audioModeLabel');
+            if(audioActive) {
+                icon.className = 'fa-solid fa-microphone text-cyan-400 animate-pulse';
+                label.innerText = 'MIC ACTIVO';
+                audioReactivity = 1.2;
+                setTrinityState('listening');
+            } else {
+                icon.className = 'fa-solid fa-microphone-slash';
+                label.innerText = 'SINTETIZADOR';
+                audioReactivity = 0;
+                setTrinityState('idle');
+            }
+        });
+
+        /* Chat System Logic */
+        document.getElementById('chatForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('userInput');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            const stream = document.getElementById('chatStream');
+
+            // User Message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex items-start gap-2.5 justify-end';
+            userDiv.innerHTML = `
+                <div class="p-2.5 rounded-xl bg-cyan-950/50 border border-cyan-500/40 text-cyan-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
+                    ${txt}
+                </div>
+                <div class="w-6 h-6 rounded-lg bg-cyan-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron">
+                    CMD
+                </div>
+            `;
+            stream.appendChild(userDiv);
+            input.value = '';
+            stream.scrollTop = stream.scrollHeight;
+
+            setTrinityState('thinking');
+            coreEnergyPulse = 1.0;
+
+            // AI Response simulation
+            setTimeout(() => {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'flex items-start gap-2.5';
+                aiDiv.innerHTML = `
+                    <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] shrink-0 font-orbitron">
+                        TR
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-100 max-w-[85%] text-xs leading-relaxed shadow-sm">
+                        <p class="font-mono-tech text-[9px] text-cyan-400 mb-1">[TRINITY AI - PROCESADO]</p>
+                        Comando "${txt}" ejecutado correctamente en los subprocesos del núcleo de plasma. Parámetros estables.
+                    </div>
+                `;
+                stream.appendChild(aiDiv);
+                stream.scrollTop = stream.scrollHeight;
+                setTrinityState('speaking');
+                setTimeout(() => setTrinityState('idle'), 1500);
+            }, 800);
+        });
+
+        // Quick action chips
+        document.querySelectorAll('.chip-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('userInput').value = btn.innerText.replace(/^[⚡🌌🛡️]\s*/, '');
+            });
+        });
+    </script>
+</body>
+</html>

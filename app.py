@@ -3,62 +3,20 @@ import json
 import requests
 from flask import Flask, request, jsonify, send_file
 
-# URL del webhook de Make.com (actualizada con su nuevo enlace)
 MAKE_WEBHOOK = os.environ.get(
     "MAKE_WEBHOOK",
-    "https://hook.us2.make.com/jq9blfnv9gjoa4v84810ge3eucpn2az0"
+    "https://hook.us2.make.com/mn8gnb5ov1ehe1iwygyx1jphavkfxlb9"
 )
 
 app = Flask(__name__)
 
-FALLBACK_KEYS = ("reply", "text", "answer", "output", "result", "content", "message", "response")
-
-def extract(data):
-    """Extrae texto plano de cualquier formato conocido de respuesta."""
-    if isinstance(data, str):
-        return data.strip()
-    if isinstance(data, list) and data:
-        return extract(data[0])
-    if not isinstance(data, dict):
-        return str(data)
-    
-    # Formato nativo de respuesta de Gemini API
-    if "candidates" in data:
-        try:
-            parts = data["candidates"][0]["content"]["parts"]
-            texts = [p.get("text", "") for p in parts if "text" in p]
-            if texts:
-                return "".join(texts).strip()
-        except Exception:
-            pass
-
-    for k in FALLBACK_KEYS:
-        if k in data and data[k]:
-            val = data[k]
-            if isinstance(val, (str, int, float)):
-                return str(val).strip()
-            res = extract(val)
-            if res:
-                return res
-
-    for k, v in data.items():
-        if isinstance(v, (dict, list)):
-            res = extract(v)
-            if res:
-                return res
-
-    return json.dumps(data, ensure_ascii=False)
-
-def parse_reply(resp):
-    try:
-        data = resp.json()
-    except Exception:
-        return resp.text.strip()
-    return extract(data)
-
 @app.route("/")
 def index():
-    return send_file("index.html")
+    try:
+        # Busca el index.html en la raíz del proyecto
+        return send_file("index.html")
+    except Exception as e:
+        return f"Error crítico cargando la interfaz de Trinity: {str(e)}", 500
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -69,11 +27,19 @@ def chat():
     
     try:
         response = requests.post(MAKE_WEBHOOK, json=payload, timeout=25)
+        print(f"Respuesta de Make (Status {response.status_code}): {response.text}")
+        
         if response.status_code == 200:
-            bot_reply = parse_reply(response)
-            return jsonify({"reply": bot_reply})
+            try:
+                data = response.json()
+                # Extrae de forma segura el texto de la respuesta sin importar cómo lo devuelva Make
+                reply_text = data.get("reply") or data.get("text") or data.get("result") or str(data)
+            except Exception:
+                reply_text = response.text.strip()
+            
+            return jsonify({"reply": reply_text if reply_text else "Núcleo activo, pero sin retorno de datos."})
         else:
-            return jsonify({"reply": "Error en el enlace cuántico neuronal. Make no respondió correctamente."}), 500
+            return jsonify({"reply": "Error en el enlace neuronal. Make respondió con código de falla."}), 500
     except Exception as e:
         return jsonify({"reply": f"Error de conexión con el núcleo: {str(e)}"}), 500
 

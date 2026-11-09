@@ -29,7 +29,9 @@ GEMINI_MODEL = os.environ.get(
 
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/"
-    f"v1beta/models/{GEMINI_MODEL}:generateContent"
+    + "v1beta/models/"
+    + GEMINI_MODEL
+    + ":generateContent"
 )
 
 CALENDAR_ID = os.environ.get(
@@ -39,20 +41,19 @@ CALENDAR_ID = os.environ.get(
 
 
 # =========================================================
-# FUNCIONES GENERALES
+# FUNCIONES AUXILIARES
 # =========================================================
 
-def current_datetime():
+def get_current_datetime():
     """
-    Fecha actual que se envía a Gemini para que pueda interpretar
-    expresiones como mañana, hoy o la próxima semana.
+    Devuelve la fecha y hora actual en formato ISO.
     """
     return datetime.now(timezone.utc).isoformat()
 
 
 def remove_code_fences(text):
     """
-    Elimina bloques como:
+    Elimina bloques de código como:
     ```json
     {...}
     ```
@@ -83,22 +84,24 @@ def remove_code_fences(text):
 
 def parse_json_text(text):
     """
-    Convierte texto generado por Gemini en un objeto JSON.
+    Convierte la respuesta de Gemini en un objeto JSON.
     """
-    cleaned = remove_code_fences(text)
+    cleaned_text = remove_code_fences(text)
 
     try:
-        return json.loads(cleaned)
+        return json.loads(cleaned_text)
+
     except json.JSONDecodeError:
-        start = cleaned.find("{")
-        end = cleaned.rfind("}")
+        start = cleaned_text.find("{")
+        end = cleaned_text.rfind("}")
 
         if start >= 0 and end > start:
-            possible_json = cleaned[start:end + 1]
+            possible_json = cleaned_text[start:end + 1]
             return json.loads(possible_json)
 
         raise ValueError(
-            f"Gemini no devolvió JSON válido: {cleaned[:1000]}"
+            "Gemini no devolvió un JSON válido: "
+            + cleaned_text[:1000]
         )
 
 
@@ -108,7 +111,7 @@ def parse_json_text(text):
 
 def extract_gemini_text(response_data):
     """
-    Extrae el texto de una respuesta de Gemini.
+    Extrae el texto de la respuesta de Gemini.
     """
     if not isinstance(response_data, dict):
         return ""
@@ -136,11 +139,11 @@ def extract_gemini_text(response_data):
 
 def call_gemini(user_text, system_instruction):
     """
-    Realiza una solicitud a Gemini.
+    Envía una solicitud a Gemini y devuelve el texto generado.
     """
     if not GEMINI_API_KEY:
         raise RuntimeError(
-            "No existe GEMINI_API_KEY en las variables de entorno de Render."
+            "Falta configurar GEMINI_API_KEY en Render."
         )
 
     payload = {
@@ -181,44 +184,44 @@ def call_gemini(user_text, system_instruction):
 
     if not response.ok:
         raise RuntimeError(
-            f"Gemini respondió HTTP {response.status_code}: "
-            f"{response.text[:1000]}"
+            "Gemini respondió HTTP "
+            + str(response.status_code)
+            + ": "
+            + response.text[:1000]
         )
 
     try:
-        data = response.json()
+        response_data = response.json()
+
     except ValueError:
         raise RuntimeError(
             "Gemini no devolvió una respuesta JSON válida."
         )
 
-    text = extract_gemini_text(data)
+    generated_text = extract_gemini_text(response_data)
 
-    if not text:
+    if not generated_text:
         raise RuntimeError(
             "Gemini respondió correctamente, pero no devolvió texto."
         )
 
-    return text
+    return generated_text
 
 
 # =========================================================
-# CONVERTIR MENSAJE EN COMANDO PARA MAKE
+# CREAR COMANDO PARA MAKE
 # =========================================================
 
 def create_make_command(user_text):
     """
-    Gemini interpreta el mensaje del usuario y produce un comando
+    Gemini transforma el mensaje del usuario en un comando
     estructurado para Make.
     """
 
-    system_instruction = f"""
+    system_instruction = """
 Eres el motor de decisiones de un asistente personal.
 
-Fecha y hora actual:
-{current_datetime()}
-
-Tu trabajo es transformar el mensaje del usuario en un comando JSON
+Tu tarea es transformar el mensaje del usuario en un comando JSON
 para una integración externa.
 
 Devuelve únicamente JSON válido.
@@ -226,22 +229,22 @@ No uses markdown.
 No uses bloques de código.
 No incluyas explicaciones.
 
-Acciones permitidas:
+Las acciones permitidas son:
 
 - calendar.search
 - calendar.create
 - none
 
-Formato obligatorio:
+El JSON debe tener exactamente esta estructura:
 
-{{
+{
   "action": "calendar.search | calendar.create | none",
   "query": "",
   "timeMin": "",
   "timeMax": "",
   "text": "",
   "confirm": false
-}}
+}
 
 Reglas:
 
@@ -251,7 +254,7 @@ Reglas:
 2. Usa calendar.create si el usuario quiere crear o agendar
    un evento.
 
-3. Usa none si el mensaje no requiere consultar Google Calendar.
+3. Usa none si el mensaje no necesita Google Calendar.
 
 4. Para calendar.search:
    - query contiene el texto que se quiere buscar.
@@ -260,17 +263,21 @@ Reglas:
 
 5. Para calendar.create:
    - text debe contener una descripción completa del evento.
-   - confirm solo puede ser true si el usuario confirmó explícitamente
-     la creación del evento.
+   - confirm solo puede ser true si el usuario confirmó
+     explícitamente la creación.
 
 6. Si el usuario pidió crear un evento pero todavía no confirmó,
    usa calendar.create con confirm false.
 
-7. Convierte fechas relativas como hoy, mañana o el viernes a fechas
+7. Convierte fechas como hoy, mañana o el viernes a fechas
    ISO 8601 cuando sea posible.
 
-8. Nunca inventes información que el usuario no proporcionó.
-"""
+8. Nunca inventes información.
+
+9. Responde siempre con JSON válido.
+
+Fecha y hora actual:
+""" + get_current_datetime()
 
     raw_response = call_gemini(
         user_text=user_text,
@@ -294,7 +301,8 @@ Reglas:
 
     if action not in allowed_actions:
         raise ValueError(
-            f"Gemini devolvió una acción no permitida: {action}"
+            "Gemini devolvió una acción no permitida: "
+            + str(action)
         )
 
     command.setdefault("query", "")
@@ -310,12 +318,12 @@ Reglas:
 
 
 # =========================================================
-# LLAMAR A MAKE
+# MAKE
 # =========================================================
 
 def call_make(command):
     """
-    Envía a Make exactamente los campos que espera el webhook.
+    Envía a Make los campos esperados por el webhook.
     """
 
     payload = {
@@ -325,6 +333,16 @@ def call_make(command):
         "query": command.get("query", ""),
         "timeMin": command.get("timeMin", ""),
         "timeMax": command.get("timeMax", ""),
-        "text": command.get("te
+        "text": command.get("text", ""),
+        "confirm": bool(command.get("confirm", False))
+    }
+
+    print("MAKE PAYLOAD:")
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+
+    response = requests.post(
+        MAKE_WEBHOOK,
+        headers={
+   
 
 _This response was too long and has been cut off. Ask me to continue, or to cover a smaller part at a time._

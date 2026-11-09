@@ -1,87 +1,302 @@
 import os
 import json
+import re
 import requests
+
 from flask import Flask, request, jsonify, send_file
 
-# URL del webhook de Make.com (puedes sobreescribirla con la variable de entorno MAKE_WEBHOOK)
+
+app = Flask(__name__)
+
+
+# Variables de entorno en Render
 MAKE_WEBHOOK = os.environ.get(
     "MAKE_WEBHOOK",
     "https://hook.us2.make.com/jq9blfnv9gjoa4v84810ge3eucpn2az0"
 )
 
-app = Flask(__name__)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_MODEL = os.environ.get(
+    "GEMINI_MODEL",
+    "gemini-2.5-flash"
+)
 
-FALLBACK_KEYS = ("reply", "text", "answer", "output", "result", "content", "message", "response")
+GEMINI_URL = (
+    f"https://generativelanguage.googleapis.com/"
+    f"v1beta/models/{GEMINI_MODEL}:generateContent"
+)
 
 
-def extract(data):
-    """Extrae texto plano de cualquier formato conocido de respuesta."""
-    if isinstance(data, str):
-        return data.strip()
-    if isinstance(data, list) and data:
-        return extract(data[0])
-    if not isinstance(data, dict):
-        return str(data)
-    # Formato nativo de respuesta de Gemini API
+# ---------------------------------------------------------
+# Utilidades
+# ---------------------------------------------------------
+
+def extract_gemini_text(data):
+    """
+    Extrae el texto generado por Gemini.
+    """
     try:
-        return extract(data["candidates"][0]["content"]["parts"][0]["text"])
+        candidates = data.get("candidates", [])
+        if not candidates:
+            return ""
+
+        content = candidates[0].get("content", {})
+        parts = content.get("parts", [])
+
+        texts = [
+            part.get("text", "")
+            for part in parts
+            if isinstance(part, dict) and part.get("text")
+        ]
+
+        return "".join(texts).strip()
+
     except Exception:
-        pass
-    # Formato de contenido Gemini (parts directo)
-    if isinstance(data.get("parts"), list):
-        joined = "".join(p.get("text", "") for p in data["parts"] if isinstance(p, dict))
-        if joined.strip():
-            return joined.strip()
-    # Claves comunes, incluida "response" (formato del webhook del usuario)
-    for k in FALLBACK_KEYS:
-        if k in data and data[k] is not None:
-            return extract(data[k])
-    return json.dumps(data, ensure_ascii=False)
+        return ""
 
 
-def parse_reply(raw):
-    text = (raw or "").strip()
+def remove_code_fences(text):
+    """
+    Elimina bloques ```json ... ``` si Gemini los devuelve.
+    """
+    text = (text or "").strip()
+
+    text = re.sub(
+        r"^```json\s*",
+        "",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r"^```\s*",
+        "",
+        text
+    )
+
+    text = re.sub(
+        r"\s*```$",
+        "",
+        text
+    )
+
+    return text.strip()
+
+
+def parse_json_response(text):
+    """
+    Convierte una respuesta de Gemini en un objeto JSON.
+    """
+    cleaned = remove_code_fences(text)
+
     try:
-        data = json.loads(text)
-    except Exception:
-        return text  # era texto plano
-    return extract(data)
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        # Intenta encontrar el primer objeto JSON dentro del texto
+        start = cleaned.find("{")
+        end = cleaned.rfind("}")
+
+        if start >= 0 and end > start:
+            return json.loads(cleaned[start:end + 1])
+
+        raise ValueError(
+            f"Gemini no devolvió JSON válido: {cleaned[:500]}"
+        )
 
 
-@app.get("/")
-def home():
-    return send_file("static/index.html")
+# ---------------------------------------------------------
+# Gemini
+# ---------------------------------------------------------
 
+def call_gemini(user_content, system_instruction):
+    """
+    Envía una solicitud a Gemini y devuelve texto plano.
+    """
+    if not GEMINI_API_KEY:
+        raise RuntimeError(
+            "Falta la variable de entorno GEMINI_API_KEY en Render."
+        )
 
-@app.post("/chat")
-def chat():
-    user_text = (request.json or {}).get("text", "").strip()
-    if not user_text:
-        return jsonify({"ok": False, "error": "Mensaje vacío"}), 400
-
-    # Enviamos el mensaje en varios formatos para que el trigger de Make
-    # encuentre el campo que su escenario espera (message, text o Gemini parts)
     payload = {
-        "message": user_text,
-        "text": user_text,
-        "role": "user",
-        "parts": [{"text": user_text}],
+        "systemInstruction": {
+            "parts": [
+                {
+                    "text": system_instruction
+                }
+            ]
+        },
+        "contents": [
+            {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": user_content
+                    }
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.2
+        }
     }
-    try:
-        r = requests.post(MAKE_WEBHOOK, json=payload, timeout=90)
-        reply = parse_reply(r.text)
-        if not reply:
-            return jsonify({
-                "ok": False,
-                "error": "Make respondió pero sin texto. Revisa el mapeo de la respuesta en el webhook.",
-                "raw": r.text[:500],
-            }), 502
-        return jsonify({"ok": True, "reply": reply})
-    except requests.Timeout:
-        return jsonify({"ok": False, "error": "Gemini tardó demasiado, intenta de nuevo"}), 504
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 502
+
+    response = requests.post(
+        GEMINI_URL,
+        headers={
+            "Content-Type": "application/json",
+            "x-goog-api-key": GEMINI_API_KEY
+        },
+        json=payload,
+        timeout=60
+    )
+
+    if not response.ok:
+        raise RuntimeError(
+            f"Gemini respondió HTTP {response.status_code}: "
+            f"{response.text[:500]}"
+        )
+
+    data = response.json()
+    text = extract_gemini_text(data)
+
+    if not text:
+        raise RuntimeError(
+            f"Gemini respondió sin texto: {json.dumps(data)[:500]}"
+        )
+
+    return text
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+def create_command_from_user_message(user_text):
+    """
+    Gemini convierte el lenguaje natural en un comando que Make puede ejecutar.
+    """
+    system_instruction = """
+Eres el controlador de integraciones de un asistente personal.
+
+Convierte el mensaje del usuario en JSON válido y devuelve únicamente JSON,
+sin markdown, sin explicaciones y sin bloques de código.
+
+Acciones permitidas:
+
+1. calendar.search
+   Para consultar eventos existentes.
+
+2. calendar.create
+   Para crear un evento nuevo.
+
+3. none
+   Cuando no se necesita usar Google Calendar.
+
+El JSON debe tener exactamente esta estructura:
+
+{
+  "action": "calendar.search | calendar.create | none",
+  "query": "",
+  "timeMin": "",
+  "timeMax": "",
+  "text": "",
+  "confirm": false
+}
+
+Reglas:
+
+- Usa calendar.search cuando el usuario pregunte por su agenda,
+  reuniones, eventos o disponibilidad.
+- Usa calendar.create cuando el usuario quiera crear o agendar algo.
+- En calendar.create, confirm debe ser true solamente si el usuario
+  confirma explícitamente una creación.
+- Si el usuario todavía no ha confirmado una acción sensible, usa
+  confirm false.
+- Las fechas deben estar en formato ISO 8601 cuando sea posible.
+- Responde siempre con JSON válido.
+"""
+
+    raw = call_gemini(
+        user_content=user_text,
+        system_instruction=system_instruction
+    )
+
+    command = parse_json_response(raw)
+
+    allowed_actions = {
+        "calendar.search",
+        "calendar.create",
+        "none"
+    }
+
+    action = command.get("action")
+
+    if action not in allowed_actions:
+        raise ValueError(
+            f"Acción no permitida generada por Gemini: {action}"
+        )
+
+    command.setdefault("query", "")
+    command.setdefault("timeMin", "")
+    command.setdefault("timeMax", "")
+    command.setdefault("text", "")
+    command.setdefault("confirm", False)
+
+    return command
+
+
+def create_final_answer(user_text, command, integration_result=None):
+    """
+    Gemini recibe el resultado de Make y genera la respuesta final para el chat.
+    """
+    system_instruction = """
+Eres la asistente personal del usuario.
+
+Responde siempre en español, con claridad y brevedad.
+
+Debes usar el resultado de la integración para contestar.
+No inventes eventos, fechas ni acciones realizadas.
+
+Si Make devolvió un error, explica que la integración no pudo completarse.
+Si no se ejecutó ninguna acción, dilo claramente.
+Si se creó un evento, confirma qué se creó.
+Si se encontraron eventos, resume los resultados de forma legible.
+
+No muestres JSON crudo al usuario salvo que sea necesario.
+"""
+
+    context = {
+        "mensaje_usuario": user_text,
+        "comando_generado": command,
+        "resultado_make": integration_result
+    }
+
+    return call_gemini(
+        user_content=json.dumps(
+            context,
+            ensure_ascii=False,
+            indent=2
+        ),
+        system_instruction=system_instruction
+    )
+
+
+# ---------------------------------------------------------
+# Make
+# ---------------------------------------------------------
+
+def call_make(command):
+    """
+    Envía a Make el comando estructurado.
+    """
+    response = requests.post(
+        MAKE_WEBHOOK,
+        headers={
+            "Content-Type": "application/json"
+        },
+        json={
+            "action": command.get("action"),
+            "requestId": command.get("requestId", ""),
+            "calendar": "dan.esteban7.0@gmail.com",
+            "query": command.get("query", ""),
+            "timeMin": command.get("timeMin", ""),
+            "timeMax": command.get("timeMax", ""),
+        
+
+_This response was too long and has been cut off. Ask me to continue, or to cover a smaller part at a time._
